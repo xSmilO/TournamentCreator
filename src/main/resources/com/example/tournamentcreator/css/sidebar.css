@@ -1,0 +1,33 @@
+#sidebar {
+    -fx-background-color: #242323;
+    -fx-pref-width: 240px;
+    -fx-alignment: TOP_CENTER;
+    -fx-spacing: 24px;
+    -fx-padding: 20px;
+}
+
+.button {
+    -fx-background-color: white;
+    -fx-font-size: 20px;
+    -fx-pref-height: 50px;
+    -fx-max-width: infinity;
+    -fx-font-weight: bold;
+    -fx-font-family: Consolas;
+}
+
+.button:hover {
+    -fx-cursor: hand;
+}
+
+#title {
+    -fx-spacing: 8px;
+}
+
+.titleText {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+#boldText {
+    -fx-fill: #e3a509;
+}

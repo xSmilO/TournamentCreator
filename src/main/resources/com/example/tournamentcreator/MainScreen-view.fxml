@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tournamentcreator.MainController">
+   <children>
+      <VBox id="sidebar" alignment="CENTER" stylesheets="@css/sidebar.css">
+         <children>
+            <HBox id="title" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="titleText" text="CS" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="titleText" text="Tournaments" />
+               </children>
+            </HBox>
+            <Button contentDisplay="CENTER" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" stylesheets="@css/sidebar.css" text="Tournaments" VBox.vgrow="ALWAYS">
+               <font>
+                  <Font name="System Bold Italic" size="12.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" text="Teams" />
+            <Button mnemonicParsing="false" text="Players" />
+         </children>
+      </VBox>
+      <Pane id="mainContainer" stylesheets="@css/mainContainer.css" HBox.hgrow="ALWAYS" />
+   </children>
+</HBox>
