@@ -2,10 +2,14 @@ package com.example.tournamentcreator;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -17,8 +21,27 @@ public class MainController {
     private Pane contentPane;
 
     @FXML
+    private StackPane modalOverlay;
+
+    @FXML
+    private void openModalAndGetData() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/tournamentcreator/example-modal.fxml"));
+            Node modalNode = loader.load();
+
+            modalOverlay.getChildren().clear();
+            modalOverlay.getChildren().add(modalNode);
+            modalOverlay.setVisible(true);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FXML
     public void initialize() {
 //        loadView("/com/example/tournamentcreator/PlayerCreatorPanel.fxml");
+        modalOverlay.setVisible(false);
     }
 
     private void loadView(String fxmlPath) {
