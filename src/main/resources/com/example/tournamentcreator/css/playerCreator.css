@@ -1,0 +1,22 @@
+#container {
+    -fx-background-color: #2e2e2e;
+    -fx-hgap: 20;
+    -fx-padding: 20;
+    -fx-pref-width: 724;
+    -fx-pref-height: 540;
+}
+
+.inputLabel {
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.input {
+    -fx-pref-width: 200;
+}
+
+.datePicker {
+    -fx-min-width: 120;
+    -fx-pref-width: 120;
+}

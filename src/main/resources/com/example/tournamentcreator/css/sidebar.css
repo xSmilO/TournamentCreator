@@ -1,5 +1,5 @@
 #sidebar {
-    -fx-background-color: #0D1015;
+    -fx-background-color: #0d1015;
     -fx-pref-width: 200px;
     -fx-alignment: TOP_CENTER;
     -fx-spacing: 12px;
@@ -23,8 +23,8 @@
 }
 
 .menu-item.active {
-    -fx-background-color: #1A1F27;
-    -fx-border-color: #FF8A24;
+    -fx-background-color: #1a1f27;
+    -fx-border-color: #ff8a24;
     -fx-border-radius: 6px;
     -fx-border-width: 0 0 0 2;
 }
@@ -36,7 +36,7 @@
 #title-text {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-fill: #EBEDF3;
+    -fx-fill: #ebedf3;
 }
 
 #hero-icon {
