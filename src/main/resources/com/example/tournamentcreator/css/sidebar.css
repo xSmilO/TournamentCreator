@@ -20,6 +20,7 @@
 
 .menu-item:hover {
     -fx-cursor: hand;
+    -fx-background-color: #1a1f27;
 }
 
 .menu-item.active {

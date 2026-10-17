@@ -14,11 +14,11 @@ public class MainController {
     private Label welcomeText;
 
     @FXML
-    private StackPane contentPane;
+    private Pane contentPane;
 
     @FXML
     public void initialize() {
-        loadView("/com/example/tournamentcreator/PlayerCreatorPanel.fxml");
+//        loadView("/com/example/tournamentcreator/PlayerCreatorPanel.fxml");
     }
 
     private void loadView(String fxmlPath) {
@@ -39,10 +39,5 @@ public class MainController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Witaj świat");
     }
 }
