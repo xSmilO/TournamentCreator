@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<FlowPane id="container" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="540.0" prefWidth="600.0" stylesheets="@css/playerCreator.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox>
+         <children>
+            <Label styleClass="inputLabel" stylesheets="@css/playerCreator.css" text="Name:" />
+            <TextField styleClass="input" />
+         </children>
+      </VBox>
+      <VBox>
+         <children>
+            <Label styleClass="inputLabel" stylesheets="@css/playerCreator.css" text="Surname:" />
+            <TextField styleClass="input" />
+         </children>
+      </VBox>
+      <VBox>
+         <children>
+            <Label styleClass="inputLabel" stylesheets="@css/playerCreator.css" text="Country:" />
+            <ComboBox id="contryBox" fx:id="countryBox" prefWidth="150.0" />
+         </children>
+      </VBox>
+      <VBox>
+         <children>
+            <Label styleClass="inputLabel" stylesheets="@css/playerCreator.css" text="Nickname:" />
+            <TextField styleClass="input" />
+         </children>
+      </VBox>
+      <VBox>
+         <children>
+            <Label styleClass="inputLabel" stylesheets="@css/playerCreator.css" text="Date of birth" />
+            <DatePicker styleClass="datePicker" />
+         </children>
+      </VBox>
+   </children>
+</FlowPane>
