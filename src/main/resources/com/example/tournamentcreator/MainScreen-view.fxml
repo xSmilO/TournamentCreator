@@ -25,9 +25,14 @@
                   <Text id="title-text" fill="WHITE" nodeOrientation="LEFT_TO_RIGHT" strokeType="OUTSIDE" strokeWidth="0.0" text="WinIt" />
                </children>
                <VBox.margin>
-                  <Insets bottom="40.0" top="20.0" />
+                  <Insets bottom="10.0" top="20.0" />
                </VBox.margin>
             </HBox>
+            <Pane prefHeight="200.0" prefWidth="200.0" styleClass="splitter" VBox.vgrow="NEVER">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </Pane>
             <Button graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" stylesheets="@css/sidebar.css" text="Dashboard" VBox.vgrow="ALWAYS">
                <font>
                   <Font name="System Bold Italic" size="12.0" />

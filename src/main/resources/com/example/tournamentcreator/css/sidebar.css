@@ -44,3 +44,8 @@
     -fx-fit-width: 48px;
     -fx-fit-height: 48px;
 }
+
+.splitter {
+    -fx-pref-height: 2px;
+    -fx-background-color: #1a1f27;
+}
