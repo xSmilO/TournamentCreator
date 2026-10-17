@@ -1,33 +1,45 @@
 #sidebar {
-    -fx-background-color: #242323;
-    -fx-pref-width: 240px;
+    -fx-background-color: #0D1015;
+    -fx-pref-width: 200px;
     -fx-alignment: TOP_CENTER;
-    -fx-spacing: 24px;
-    -fx-padding: 20px;
+    -fx-spacing: 12px;
+    -fx-padding: 16px;
 }
 
-.button {
-    -fx-background-color: white;
-    -fx-font-size: 20px;
-    -fx-pref-height: 50px;
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-font-size: 16px;
+    -fx-pref-height: 40px;
     -fx-max-width: infinity;
     -fx-font-weight: bold;
-    -fx-font-family: Consolas;
+    -fx-font-family: "DM Sans";
+    -fx-text-fill: #818998;
+    -fx-content-display: LEFT;
+    -fx-alignment: CENTER_LEFT;
 }
 
-.button:hover {
+.menu-item:hover {
     -fx-cursor: hand;
+}
+
+.menu-item.active {
+    -fx-background-color: #1A1F27;
+    -fx-border-color: #FF8A24;
+    -fx-border-radius: 6px;
+    -fx-border-width: 0 0 0 2;
 }
 
 #title {
     -fx-spacing: 8px;
 }
 
-.titleText {
-    -fx-font-size: 30px;
+#title-text {
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
+    -fx-fill: #EBEDF3;
 }
 
-#boldText {
-    -fx-fill: #e3a509;
+#hero-icon {
+    -fx-fit-width: 48px;
+    -fx-fit-height: 48px;
 }
