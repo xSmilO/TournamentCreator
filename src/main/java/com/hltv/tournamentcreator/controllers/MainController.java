@@ -1,4 +1,4 @@
-package com.hltv.tournamentcreator;
+package com.hltv.tournamentcreator.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

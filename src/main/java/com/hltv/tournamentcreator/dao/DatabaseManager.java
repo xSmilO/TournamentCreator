@@ -1,4 +1,4 @@
-package com.hltv.tournamentcreator;
+package com.hltv.tournamentcreator.dao;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
