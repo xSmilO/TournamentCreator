@@ -1,4 +1,4 @@
-package com.example.tournamentcreator;
+package com.hltv.tournamentcreator;
 
 import javafx.application.Application;
 

@@ -1,17 +1,12 @@
-package com.example.tournamentcreator;
+package com.hltv.tournamentcreator;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class MainController {
     @FXML
@@ -26,7 +21,7 @@ public class MainController {
     @FXML
     private void openModalAndGetData() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/tournamentcreator/example-modal.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/example-modal.fxml"));
             Node modalNode = loader.load();
 
             modalOverlay.getChildren().clear();

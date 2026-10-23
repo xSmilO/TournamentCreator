@@ -1,4 +1,4 @@
-package com.example.tournamentcreator;
+package com.hltv.tournamentcreator;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
