@@ -21,7 +21,7 @@ public class MainController {
     @FXML
     private void openModalAndGetData() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/example-modal.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/PlayerCreatorPanel.fxml"));
             Node modalNode = loader.load();
 
             modalOverlay.getChildren().clear();

@@ -11,8 +11,6 @@ import java.io.IOException;
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        DatabaseManager.printAllTeams();
-
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("MainScreen-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Tournament Creator");
