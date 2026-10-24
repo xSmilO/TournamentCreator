@@ -1,5 +1,7 @@
 package com.hltv.tournamentcreator.controllers;
 
+import com.hltv.tournamentcreator.dao.PlayerDAO;
+import com.hltv.tournamentcreator.models.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -7,6 +9,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+
+import java.util.List;
 
 public class MainController {
     @FXML
@@ -18,9 +22,17 @@ public class MainController {
     @FXML
     private StackPane modalOverlay;
 
+    private final PlayerDAO playerDAO = new PlayerDAO();
+
     @FXML
     private void openModalAndGetData() {
         try {
+            List<Player> players = playerDAO.getAllPlayers();
+
+            for(Player player : players) {
+                System.out.println(player.nickname() + " " + player.firstName() + " " + player.dateOfBirth());
+            }
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/PlayerCreatorPanel.fxml"));
             Node modalNode = loader.load();
 
