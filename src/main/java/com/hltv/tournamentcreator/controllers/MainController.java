@@ -27,11 +27,11 @@ public class MainController {
     @FXML
     private void openModalAndGetData() {
         try {
-            List<Player> players = playerDAO.getAllPlayers();
-
-            for(Player player : players) {
-                System.out.println(player.nickname() + " " + player.firstName() + " " + player.dateOfBirth());
-            }
+//            List<Player> players = playerDAO.getAllPlayers();
+//
+//            for(Player player : players) {
+//                System.out.println(player.nickname() + " " + player.firstName() + " " + player.dateOfBirth());
+//            }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/PlayerCreatorPanel.fxml"));
             Node modalNode = loader.load();

@@ -1,22 +1,128 @@
 #container {
-    -fx-background-color: #2e2e2e;
-    -fx-hgap: 20;
-    -fx-padding: 20;
-    -fx-pref-width: 724;
-    -fx-pref-height: 540;
-}
-
-.inputLabel {
-    -fx-font-size: 20;
-    -fx-font-weight: bold;
-    -fx-text-fill: white;
-}
-
-.input {
-    -fx-pref-width: 200;
+    -fx-background-color: #11151C;
+    -fx-spacing: 24;
+    -fx-padding: 32;
+    -fx-pref-width: 500;
+    -fx-pref-height: 400;
+    -fx-border-color: #242A34;
+    -fx-border-width: 1;
 }
 
 .datePicker {
     -fx-min-width: 120;
     -fx-pref-width: 120;
+}
+
+#titleContainer {
+
+}
+
+#title {
+    -fx-text-fill: #EBEDF3;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+#h2 {
+    -fx-text-fill: #77808E;
+    -fx-font-weight: bold;
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 10px;
+}
+
+#close-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #242A34;
+}
+
+#close-btn:hover {
+    -fx-cursor: hand;
+}
+
+.row {
+    -fx-spacing: 16px;
+}
+
+.input-field {
+    -fx-pref-width: -1;
+    -fx-pref-height: -1;
+    -fx-spacing: 4px;
+}
+
+.input-field .input {
+    -fx-border-width: 1px;
+    -fx-border-color: #1a1f27;
+    -fx-background-color: #0D1015;
+    -fx-text-fill: white;
+}
+
+.input-field .input:focused {
+    -fx-border-color: #ff8a24;
+}
+
+.input-label {
+    -fx-font-size: 10;
+    -fx-font-weight: bold;
+    -fx-text-fill: #818998;
+}
+
+.combo-box {
+    -fx-background-color: #0D1015;
+    -fx-border-color: #1a1f27;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.combo-box:hover {
+    -fx-cursor: hand;
+}
+
+.combo-box:focused {
+    -fx-border-color: #ff8e00;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: white;
+    -fx-padding: 4;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #888888;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #0D1015;
+    -fx-border-color: #1a1f27;
+    -fx-border-width: 1;
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: white;
+    -fx-padding: 4;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-cell:filled:hover {
+    -fx-background-color: #2a2a35;
+    -fx-text-fill: #ff8e00;
+    -fx-cursor: hand;
+}
+
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #ff8e00;
+    -fx-text-fill: white;
+}
+
+#add-btn {
+    -fx-background-color: #ff8e00;
+    -fx-text-fill: white;
+    -fx-pref-width: 120px;
+    -fx-pref-height: 40px;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
 }

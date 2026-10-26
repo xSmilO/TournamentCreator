@@ -8,34 +8,71 @@ import com.hltv.tournamentcreator.models.Player;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.UnaryOperator;
 
 public class PlayerCreatorController {
     @FXML
     private ComboBox<Country> countryBox;
-
     @FXML
     private TextField nicknameField;
     @FXML
     private TextField surnameField;
     @FXML
-    private TextField nameField;
+    private TextField firstNameField;
     @FXML
-    private DatePicker dateOfBirthPicker;
+    private TextField dateOfBirthField;
+    @FXML
+    private Button addBtn;
+    @FXML
+    private VBox playerCreatorContainer;
 
     private final PlayerDAO playerDao = new PlayerDAO();
     private final CountryDAO countryDAO = new CountryDAO();
+
+    private void setupDateFormatter() {
+        UnaryOperator<TextFormatter.Change> dateMaskFilter = change -> {
+
+            if (change.isDeleted()) {
+                return change;
+            }
+
+            String newText = change.getControlNewText();
+
+            if (!newText.matches("[0-9\\-]*")) {
+                return null;
+            }
+
+            if (newText.length() > 10) {
+                return null;
+            }
+
+            if (newText.length() == 2 || newText.length() == 5) {
+                change.setText(change.getText() + "-");
+
+                change.setCaretPosition(change.getCaretPosition() + 1);
+                change.setAnchor(change.getAnchor() + 1);
+            }
+
+            return change;
+        };
+
+        dateOfBirthField.setTextFormatter(new TextFormatter<>(dateMaskFilter));
+    }
 
     @FXML
     public void initialize() {
@@ -53,30 +90,25 @@ public class PlayerCreatorController {
     }
 
     private void setupCountryComboBox() {
-        // This tells the ComboBox how to display the Country object as text
         countryBox.setConverter(new StringConverter<Country>() {
             @Override
             public String toString(Country country) {
                 if (country == null) {
                     return "";
                 }
-                // This is what the user sees in the dropdown (e.g., "Poland")
                 return country.name();
             }
 
             @Override
             public Country fromString(String string) {
-                // Not needed for a standard dropdown, just return null
                 return null;
             }
         });
     }
 
     private void loadCountries() {
-        // Fetch from DB in the background
         CompletableFuture.supplyAsync(() -> countryDAO.getAllCountries())
                 .thenAccept(countries -> {
-                    // Update UI on the JavaFX thread
                     Platform.runLater(() -> {
                         countryBox.getItems().setAll(countries);
                     });
@@ -90,9 +122,11 @@ public class PlayerCreatorController {
     @FXML
     private void handleSavePlayer() {
         String nickname = nicknameField.getText().trim();
-        String name = nameField.getText().trim();
+        String name = firstNameField.getText().trim();
         String surname = surnameField.getText().trim();
-        LocalDate dateOfBirth = dateOfBirthPicker.getValue();
+        String dateString = dateOfBirthField.getText();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate dateOfBirth = LocalDate.parse(dateString, dateFormatter);
         Country selectedCountry = countryBox.getValue();
 
         if (nickname.isEmpty() || name.isEmpty() || surname.isEmpty() ||
@@ -107,8 +141,16 @@ public class PlayerCreatorController {
 
         if (newPlayer != null) {
             System.out.println("Success! Created player: " + newPlayer.nickname());
-            
+
         }
     }
 
+    @FXML
+    private void handleCancel() {
+        Pane modalOverlay = (Pane) playerCreatorContainer.getParent();
+        if (modalOverlay != null) {
+            modalOverlay.getChildren().clear();
+            modalOverlay.setVisible(false);
+        }
+    }
 }
