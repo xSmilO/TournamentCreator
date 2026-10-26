@@ -1,5 +1,6 @@
 package com.hltv.tournamentcreator.controllers;
 
+import com.hltv.tournamentcreator.utils.ModalManager;
 import com.hltv.tournamentcreator.utils.ViewManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,27 +24,11 @@ public class MainController {
     @FXML
     private Button navPlayersBtn;
 
-
-    @FXML
-    public void openModalAndGetData(String modalPath) {
-        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/PlayerCreatorModal.fxml"));
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(modalPath));
-            Node modalNode = loader.load();
-
-            modalOverlay.getChildren().clear();
-            modalOverlay.getChildren().add(modalNode);
-            modalOverlay.setVisible(true);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @FXML
     public void initialize() {
         modalOverlay.setVisible(false);
         ViewManager.initialize(contentPane);
+        ModalManager.initialize(modalOverlay);
 
         ViewManager.getInstance().switchSection("/com/hltv/tournamentcreator/PlayersSection.fxml", navPlayersBtn);
     }
