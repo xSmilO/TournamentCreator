@@ -136,9 +136,7 @@ public class PlayerCreatorController {
                 return;
             }
 
-            int countryId = selectedCountry.countryId();
-
-            Player newPlayer = playerDao.createPlayer(nickname, name, surname, countryId, Date.valueOf(dateOfBirth));
+            Player newPlayer = playerDao.createPlayer(nickname, name, surname, selectedCountry, dateOfBirth);
 
             if (newPlayer != null) {
                 Toast.show(stage, "Player " + nickname + " saved successfully", Toast.ToastType.SUCCESS);

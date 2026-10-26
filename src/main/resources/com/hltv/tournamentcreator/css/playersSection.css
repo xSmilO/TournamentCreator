@@ -49,6 +49,42 @@
     -fx-padding: 0 0 0 10px;
 }
 
+.table-row-cell {
+    -fx-background-color: #0D1015;
+    -fx-border-color: #0D1015 #0D1015 #1a1f27 #0D1015;
+    -fx-border-width: 1px;
+    -fx-cell-size: 40px; /* Height of each row */
+}
+
+/* 6. Alternating row colors (zebra striping) */
+/*.table-row-cell:odd {*/
+/*    -fx-background-color: #252525;*/
+/*}*/
+
+/* 7. Hover effect when the mouse moves over a row */
+.table-row-cell:hover {
+    -fx-background-color: red;
+}
+
+/* 8. Selected row style */
+.table-row-cell:selected {
+    -fx-background-color: #4CAF50; /* Green accent color */
+    -fx-text-fill: white;
+}
+
+/* 9. Style the text inside the standard cells */
+.table-cell {
+    -fx-text-fill: #cccccc;
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 10px;
+}
+
+/* Ensure selected text stays white */
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: white;
+}
+
 #add-btn {
     -fx-background-color: #ff8a24;
     -fx-font-weight: bold;

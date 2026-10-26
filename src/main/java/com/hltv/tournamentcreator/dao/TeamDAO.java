@@ -60,9 +60,7 @@ public class TeamDAO {
         return new Team(
                 rs.getObject("team_id", UUID.class),
                 rs.getString("name"),
-                rs.getString("country"),
-                rs.getObject("world_ranking", Integer.class),
-                rs.getObject("created_at", LocalDateTime.class)
+                rs.getObject("world_ranking", Integer.class)
         );
     }
 }
