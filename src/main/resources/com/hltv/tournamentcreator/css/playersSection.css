@@ -1,0 +1,60 @@
+#container {
+    -fx-background-color: #0D1015;
+    -fx-padding: 32px 20px;
+}
+
+#header {
+    /*-fx-padding: 20px;*/
+}
+
+#label-container {
+    -fx-spacing: 8px;
+}
+
+#h2 {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+#title {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ff8a24;
+}
+
+.table-view {
+    -fx-background-color: #11151C;
+    -fx-border-color: #333333;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #11151C;
+    -fx-background-radius: 5px 5px 0 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: #333333;
+    -fx-border-width: 0 1px 1px 0;
+    -fx-size: 35px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 0 10px;
+}
+
+#add-btn {
+    -fx-background-color: #ff8a24;
+    -fx-font-weight: bold;
+    -fx-pref-height: 36px;
+}
+
+#add-btn:hover {
+    -fx-cursor: hand;
+}

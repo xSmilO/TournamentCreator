@@ -12,96 +12,100 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
+<StackPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.hltv.tournamentcreator.controllers.MainController">
+    <children>
+        <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+              minWidth="-Infinity" prefHeight="540.0" prefWidth="1024.0">
+            <children>
+                <VBox id="sidebar" alignment="CENTER" stylesheets="@css/sidebar.css">
+                    <children>
+                        <HBox id="title" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                            <children>
+                                <ImageView id="hero-icon" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true"
+                                           preserveRatio="true" rotate="-12.3" smooth="false" HBox.hgrow="NEVER">
+                                    <image>
+                                        <Image url="@assets/hero-icon.png"/>
+                                    </image>
+                                </ImageView>
+                                <Text id="title-text" fill="WHITE" nodeOrientation="LEFT_TO_RIGHT" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="WinIt"/>
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="10.0" top="10.0"/>
+                            </VBox.margin>
+                        </HBox>
+                        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="splitter" VBox.vgrow="NEVER">
+                            <VBox.margin>
+                                <Insets bottom="20.0"/>
+                            </VBox.margin>
+                        </Pane>
+                        <Button fx:id="navDashboardBtn" graphicTextGap="16.0" maxHeight="-Infinity"
+                                minHeight="-Infinity" mnemonicParsing="false" stylesheets="@css/sidebar.css"
+                                text="Dashboard" VBox.vgrow="ALWAYS" onAction="#onDashboardClicked"
+                                styleClass="menu-item">
+                            <font>
+                                <Font name="System Bold Italic" size="12.0"/>
+                            </font>
+                            <graphic>
+                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
+                                    <image>
+                                        <Image url="@assets/menu_dashboard_icon.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
 
-<StackPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hltv.tournamentcreator.controllers.MainController">
-   <children>
-      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="1024.0">
-         <children>
-            <VBox id="sidebar" alignment="CENTER" stylesheets="@css/sidebar.css">
-               <children>
-                  <HBox id="title" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
-                     <children>
-                        <ImageView id="hero-icon" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true" rotate="-12.3" smooth="false" HBox.hgrow="NEVER">
-                           <image>
-                              <Image url="@assets/hero-icon.png" />
-                           </image>
-                        </ImageView>
-                        <Text id="title-text" fill="WHITE" nodeOrientation="LEFT_TO_RIGHT" strokeType="OUTSIDE" strokeWidth="0.0" text="WinIt" />
-                     </children>
-                     <VBox.margin>
-                        <Insets bottom="10.0" top="10.0" />
-                     </VBox.margin>
-                  </HBox>
-                  <Pane prefHeight="200.0" prefWidth="200.0" styleClass="splitter" VBox.vgrow="NEVER">
-                     <VBox.margin>
-                        <Insets bottom="20.0" />
-                     </VBox.margin>
-                  </Pane>
-                  <Button graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" stylesheets="@css/sidebar.css" text="Dashboard" VBox.vgrow="ALWAYS">
-                     <font>
-                        <Font name="System Bold Italic" size="12.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                           <image>
-                              <Image url="@assets/menu_dashboard_icon.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <styleClass>
-                        <String fx:value="menu-item" />
-                        <String fx:value="active" />
-                     </styleClass>
-                  </Button>
-                  <Button graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css" text="Tournaments">
-                     <font>
-                        <Font name="System Bold Italic" size="12.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                           <image>
-                              <Image url="@assets/menu_tournaments_icon.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-                  <Button alignment="CENTER" graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css" text="Teams">
-                     <font>
-                        <Font name="System Bold Italic" size="12.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                           <image>
-                              <Image url="@assets/menu_players_icon.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-                  <Button graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css" text="Players">
-                     <font>
-                        <Font name="System Bold Italic" size="12.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                           <image>
-                              <Image url="@assets/men_player_icon.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-               </children>
-            </VBox>
-            <Pane id="content-pane" fx:id="contentPane" stylesheets="@css/contentPane.css" HBox.hgrow="ALWAYS">
-               <children>
-                  <Button layoutX="245.0" layoutY="47.0" mnemonicParsing="false" onAction="#openModalAndGetData" text="Modal" />
-               </children>
-            </Pane>
-         </children>
-      </HBox>
-      <StackPane fx:id="modalOverlay" id="modal-overlay" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" StackPane.alignment="CENTER">
-         <children>
-            <Text fill="#e40000" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-         </children>
-      </StackPane>
-   </children>
+                        </Button>
+                        <Button fx:id="navTournamentsBtn" graphicTextGap="16.0" maxHeight="-Infinity"
+                                minHeight="-Infinity"
+                                mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css"
+                                text="Tournaments" onAction="#onTournamentsClicked">
+                            <font>
+                                <Font name="System Bold Italic" size="12.0"/>
+                            </font>
+                            <graphic>
+                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
+                                    <image>
+                                        <Image url="@assets/menu_tournaments_icon.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="navTeamsBtn" alignment="CENTER" graphicTextGap="16.0" maxHeight="-Infinity"
+                                minHeight="-Infinity"
+                                mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css"
+                                text="Teams" onAction="#onTeamsClicked">
+                            <font>
+                                <Font name="System Bold Italic" size="12.0"/>
+                            </font>
+                            <graphic>
+                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
+                                    <image>
+                                        <Image url="@assets/menu_players_icon.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="navPlayersBtn" graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity"
+                                mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css"
+                                text="Players" onAction="#onPlayersClicked">
+                            <font>
+                                <Font name="System Bold Italic" size="12.0"/>
+                            </font>
+                            <graphic>
+                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
+                                    <image>
+                                        <Image url="@assets/men_player_icon.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </children>
+                </VBox>
+                <Pane id="content-pane" fx:id="contentPane" stylesheets="@css/contentPane.css" HBox.hgrow="ALWAYS"/>
+            </children>
+        </HBox>
+        <StackPane id="modal-overlay" fx:id="modalOverlay" maxHeight="1.7976931348623157E308"
+                   maxWidth="1.7976931348623157E308" StackPane.alignment="CENTER"/>
+    </children>
 </StackPane>

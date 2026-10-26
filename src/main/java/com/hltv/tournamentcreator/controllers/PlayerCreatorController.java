@@ -78,14 +78,10 @@ public class PlayerCreatorController {
 
     @FXML
     public void initialize() {
-        System.out.println("1. Controller initialized!");
-
         if (countryBox == null) {
             System.out.println("CRITICAL ERROR: countryBox is NULL! Check your FXML fx:id!");
-            return; // Stop here so the app doesn't crash
+            return;
         }
-
-        System.out.println("2. countryBox is linked correctly.");
         countryBox.setPromptText("Select country");
         setupCountryComboBox();
         loadCountries();

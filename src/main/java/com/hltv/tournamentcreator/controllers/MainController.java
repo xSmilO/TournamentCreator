@@ -1,39 +1,34 @@
 package com.hltv.tournamentcreator.controllers;
 
-import com.hltv.tournamentcreator.dao.PlayerDAO;
-import com.hltv.tournamentcreator.models.Player;
+import com.hltv.tournamentcreator.utils.ViewManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
-import java.util.List;
-
 public class MainController {
     @FXML
-    private Label welcomeText;
-
-    @FXML
     private Pane contentPane;
-
     @FXML
     private StackPane modalOverlay;
 
-    private final PlayerDAO playerDAO = new PlayerDAO();
+    @FXML
+    private Button navDashboardBtn;
+    @FXML
+    private Button navTournamentsBtn;
+    @FXML
+    private Button navTeamsBtn;
+    @FXML
+    private Button navPlayersBtn;
+
 
     @FXML
-    private void openModalAndGetData() {
+    public void openModalAndGetData(String modalPath) {
         try {
-//            List<Player> players = playerDAO.getAllPlayers();
-//
-//            for(Player player : players) {
-//                System.out.println(player.nickname() + " " + player.firstName() + " " + player.dateOfBirth());
-//            }
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/PlayerCreatorPanel.fxml"));
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/hltv/tournamentcreator/PlayerCreatorModal.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(modalPath));
             Node modalNode = loader.load();
 
             modalOverlay.getChildren().clear();
@@ -47,27 +42,29 @@ public class MainController {
 
     @FXML
     public void initialize() {
-//        loadView("/com/example/tournamentcreator/PlayerCreatorPanel.fxml");
         modalOverlay.setVisible(false);
+        ViewManager.initialize(contentPane);
+
+        ViewManager.getInstance().switchSection("/com/hltv/tournamentcreator/PlayersSection.fxml", navPlayersBtn);
     }
 
-    private void loadView(String fxmlPath) {
-        try {
-            var resource = getClass().getResource(fxmlPath);
+    @FXML
+    private void onDashboardClicked() {
+        ViewManager.getInstance().switchSection("", navDashboardBtn);
+    }
 
-            if (resource == null) {
-                throw new RuntimeException(
-                        "Nie znaleziono pliku FXML: " + fxmlPath
-                );
-            }
+    @FXML
+    private void onTournamentsClicked() {
+        ViewManager.getInstance().switchSection("", navTournamentsBtn);
+    }
 
-            FXMLLoader loader = new FXMLLoader(resource);
-            Parent view = loader.load();
+    @FXML
+    private void onTeamsClicked() {
+        ViewManager.getInstance().switchSection("", navTeamsBtn);
+    }
 
-            contentPane.getChildren().setAll(view);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @FXML
+    private void onPlayersClicked() {
+        ViewManager.getInstance().switchSection("/com/hltv/tournamentcreator/PlayersSection.fxml", navPlayersBtn);
     }
 }

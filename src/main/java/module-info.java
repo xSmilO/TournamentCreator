@@ -16,4 +16,6 @@ module com.example.tournamentcreator {
     opens com.hltv.tournamentcreator.controllers to javafx.fxml;
     exports com.hltv.tournamentcreator.dao;
     opens com.hltv.tournamentcreator.dao to javafx.fxml;
+    exports com.hltv.tournamentcreator.utils;
+    opens com.hltv.tournamentcreator.utils to javafx.fxml;
 }
