@@ -5,6 +5,7 @@ import com.hltv.tournamentcreator.dao.DatabaseManager;
 import com.hltv.tournamentcreator.dao.PlayerDAO;
 import com.hltv.tournamentcreator.models.Country;
 import com.hltv.tournamentcreator.models.Player;
+import com.hltv.tournamentcreator.utils.Toast;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.sql.Connection;
@@ -121,27 +123,34 @@ public class PlayerCreatorController {
 
     @FXML
     private void handleSavePlayer() {
-        String nickname = nicknameField.getText().trim();
-        String name = firstNameField.getText().trim();
-        String surname = surnameField.getText().trim();
-        String dateString = dateOfBirthField.getText();
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate dateOfBirth = LocalDate.parse(dateString, dateFormatter);
-        Country selectedCountry = countryBox.getValue();
+        Stage stage = (Stage) playerCreatorContainer.getScene().getWindow();
 
-        if (nickname.isEmpty() || name.isEmpty() || surname.isEmpty() ||
-                selectedCountry == null || dateOfBirth == null) {
-            System.out.println("Validation Error: Please fill all fields, select a country, and pick a date.");
-            return;
-        }
+        try {
+            String nickname = nicknameField.getText().trim();
+            String name = firstNameField.getText().trim();
+            String surname = surnameField.getText().trim();
+            String dateString = dateOfBirthField.getText();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            LocalDate dateOfBirth = LocalDate.parse(dateString, dateFormatter);
+            Country selectedCountry = countryBox.getValue();
 
-        int countryId = selectedCountry.countryId();
+            if (nickname.isEmpty() || name.isEmpty() || surname.isEmpty() ||
+                    selectedCountry == null || dateOfBirth == null) {
+                Toast.show(stage, "Validation Error: Please fill all fields, select a country, and pick a date.", Toast.ToastType.WARNING);
+                return;
+            }
 
-        Player newPlayer = playerDao.createPlayer(nickname, name, surname, countryId, Date.valueOf(dateOfBirth));
+            int countryId = selectedCountry.countryId();
 
-        if (newPlayer != null) {
-            System.out.println("Success! Created player: " + newPlayer.nickname());
+            Player newPlayer = playerDao.createPlayer(nickname, name, surname, countryId, Date.valueOf(dateOfBirth));
 
+            if (newPlayer != null) {
+                Toast.show(stage, "Player " + nickname + " saved successfully", Toast.ToastType.SUCCESS);
+            } else {
+                Toast.show(stage, "Something went wrong while saving the player", Toast.ToastType.ERROR);
+            }
+        } catch (Exception e) {
+            Toast.show(stage, e.getMessage(), Toast.ToastType.ERROR);
         }
     }
 
