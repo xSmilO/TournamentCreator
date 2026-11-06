@@ -4,6 +4,7 @@ import com.hltv.tournamentcreator.models.*;
 import com.hltv.tournamentcreator.utils.CreatorValidation;
 import com.hltv.tournamentcreator.utils.MatchResults;
 import com.hltv.tournamentcreator.utils.SingleElimination;
+import com.hltv.tournamentcreator.utils.GroupStage;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -14,7 +15,11 @@ public class MatchDAO {
     MatchDAO(ConnectionSource connections) { this.connections = connections; }
 
     public List<TournamentMatch> getMatches(UUID tournamentId) throws SQLException {
-        try (Connection conn = connections.open(); PreparedStatement stmt = conn.prepareStatement("""
+        try (Connection conn = connections.open()) { return getMatches(conn, tournamentId); }
+    }
+
+    List<TournamentMatch> getMatches(Connection conn, UUID tournamentId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement("""
                 SELECT m.*, COALESCE(a.name, 'TBD') AS team1_name, COALESCE(b.name, 'TBD') AS team2_name,
                   (SELECT count(*) FROM winit.games g WHERE g.match_id=m.match_id AND g.status='Completed' AND g.winner_id=m.team1_id) AS score1,
                   (SELECT count(*) FROM winit.games g WHERE g.match_id=m.match_id AND g.status='Completed' AND g.winner_id=m.team2_id) AS score2
@@ -30,7 +35,7 @@ public class MatchDAO {
                         rs.getString("team2_name"), rs.getString("match_format"), rs.getString("status"),
                         rs.getObject("start_time", LocalDateTime.class), rs.getString("stage"), rs.getString("round_name"),
                         rs.getObject("winner_id", UUID.class), rs.getInt("score1"), rs.getInt("score2"), rs.getObject("next_match_id", UUID.class),
-                        rs.getObject("next_match_slot", Integer.class)));
+                        rs.getObject("next_match_slot", Integer.class), rs.getObject("group_id", UUID.class)));
                 return matches;
             }
         }
@@ -57,7 +62,8 @@ public class MatchDAO {
         MatchResults.evaluate(format, team1, team2, List.of());
         String validStage = CreatorValidation.text(stage, "Stage", 50, false);
         String validRound = CreatorValidation.text(round, "Round", 50, false);
-        if (SingleElimination.STAGE.equals(validStage)) throw new IllegalArgumentException("Use Generate bracket for single elimination matches.");
+        if (SingleElimination.STAGE.equals(validStage) || GroupStage.STAGE.equals(validStage))
+            throw new IllegalArgumentException("Use the group or bracket generator for managed competition matches.");
         transaction(conn -> {
             lockTournament(conn, tournamentId);
             ensureNoBracket(conn, tournamentId);
@@ -102,8 +108,13 @@ public class MatchDAO {
                     if (teams.size() > rs.getInt("team_limit")) throw new SQLException("Registered teams exceed the tournament's team limit.", "P0001");
                 }
             }
-            // Insert the final first so the next_match_id foreign keys already exist.
-            try (PreparedStatement stmt = conn.prepareStatement("""
+            insertBracket(conn, tournamentId, format, bracket);
+        });
+    }
+
+    static void insertBracket(Connection conn, UUID tournamentId, String format, List<BracketMatch> bracket) throws SQLException {
+        // Insert the final first so the next_match_id foreign keys already exist.
+        try (PreparedStatement stmt = conn.prepareStatement("""
                     INSERT INTO winit.matches (match_id,tournament_id,team1_id,team2_id,match_format,status,stage,round_name,next_match_id,next_match_slot,winner_id)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?)
                     """)) {
@@ -116,8 +127,7 @@ public class MatchDAO {
                     stmt.setObject(9, match.nextMatchId()); stmt.setObject(10, match.nextSlot(), Types.INTEGER); stmt.setObject(11, match.winnerId());
                     stmt.executeUpdate();
                 }
-            }
-        });
+        }
     }
 
     public void saveScores(TournamentMatch match, List<MapResult> original, List<MapResult> input) throws SQLException {
@@ -142,6 +152,14 @@ public class MatchDAO {
                     oldWinner = rs.getObject("winner_id", UUID.class);
                     nextId = rs.getObject("next_match_id", UUID.class);
                     nextSlot = rs.getObject("next_match_slot", Integer.class);
+                    if (rs.getObject("group_id", UUID.class) != null) {
+                        try (PreparedStatement playoffs = conn.prepareStatement("SELECT 1 FROM winit.matches WHERE tournament_id=? AND stage=? LIMIT 1")) {
+                            playoffs.setObject(1, match.tournamentId()); playoffs.setString(2, SingleElimination.STAGE);
+                            try (ResultSet played = playoffs.executeQuery()) {
+                                if (played.next()) throw new SQLException("Group results are locked because playoffs have already been generated.", "P0001");
+                            }
+                        }
+                    }
                 }
             }
             if (!getMaps(conn, match.matchId()).equals(original) || !Objects.equals(oldWinner, match.winnerId()))
@@ -201,9 +219,10 @@ public class MatchDAO {
     }
 
     static void ensureNoBracket(Connection conn, UUID id) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM winit.matches WHERE tournament_id=? AND stage=? LIMIT 1")) {
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM winit.matches WHERE tournament_id=? AND stage IN (?, ?) LIMIT 1")) {
             stmt.setObject(1, id); stmt.setString(2, SingleElimination.STAGE);
-            try (ResultSet rs = stmt.executeQuery()) { if (rs.next()) throw new SQLException("The bracket is already generated. Use its existing matches.", "P0001"); }
+            stmt.setString(3, GroupStage.STAGE);
+            try (ResultSet rs = stmt.executeQuery()) { if (rs.next()) throw new SQLException("Groups or a bracket are already generated. Registration is closed; use the existing matches.", "P0001"); }
         }
     }
 

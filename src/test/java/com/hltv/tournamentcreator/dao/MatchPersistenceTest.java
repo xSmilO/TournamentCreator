@@ -91,6 +91,19 @@ class MatchPersistenceTest {
         assertTrue(jdbc.committed);
     }
 
+    @Test void groupResultsAreLockedAfterPlayoffQualification() {
+        Jdbc jdbc=jdbc(null,"Upcoming",List.of()); var original=jdbc.query;
+        jdbc.query=sql -> {
+            if(sql.startsWith("SELECT 1 FROM winit.matches"))return List.of(row("1",1));
+            var rows=original.apply(sql);
+            if(sql.startsWith("SELECT * FROM winit.matches"))rows.get(0).put("group_id",UUID.randomUUID());
+            return rows;
+        };
+        SQLException error=assertThrows(SQLException.class, () -> new MatchDAO(jdbc::connection).saveScores(match(null),List.of(),List.of(result(13,9))));
+        assertTrue(error.getMessage().contains("Group results are locked"));
+        assertTrue(jdbc.rolledBack);assertTrue(jdbc.updates.isEmpty());
+    }
+
     @Test void rejectsRegistrationBatchThatWouldExceedCapacityWithoutPartialWrites() {
         Jdbc jdbc=new Jdbc();
         jdbc.query=sql -> sql.startsWith("SELECT tournament_id") ? List.of(row("tournament_id",tournament,"team_limit",2))
@@ -122,8 +135,8 @@ class MatchPersistenceTest {
         assertEquals(tournament,jdbc.updates.get(0).parameters.get(2));
     }
 
-    private record Update(String sql,Map<Integer,Object> parameters) {}
-    private static final class Jdbc {
+    record Update(String sql,Map<Integer,Object> parameters) {}
+    static final class Jdbc {
         boolean committed,rolledBack,closed;
         String failUpdate;
         Function<String,List<Map<String,Object>>> query=sql -> List.of();

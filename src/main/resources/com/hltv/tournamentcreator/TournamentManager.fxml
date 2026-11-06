@@ -20,7 +20,7 @@
                         <placeholder><Label text="No registered teams. Click Add teams to register your participants." wrapText="true"/></placeholder>
                         <columns><TableColumn fx:id="participantSeed" text="SEED" minWidth="90" maxWidth="120"/><TableColumn fx:id="participantName" text="TEAM" minWidth="250"/></columns>
                     </TableView>
-                    <Label text="Register every team before generating the bracket. Teams are placed by seed; late registrations are blocked after generation." styleClass="muted" wrapText="true"/>
+                    <Label text="Register every team before drawing groups or generating a bracket. Registration closes after the competition is generated." styleClass="muted" wrapText="true"/>
                 </VBox>
             </Tab>
             <Tab fx:id="matchesTab" text="Matches">
@@ -32,6 +32,24 @@
                         <columns><TableColumn fx:id="matchOpponents" text="MATCH" minWidth="260"/><TableColumn fx:id="matchScore" text="MAPS" minWidth="80"/><TableColumn fx:id="matchStatus" text="STATUS" minWidth="110"/><TableColumn fx:id="matchRound" text="ROUND" minWidth="110"/><TableColumn fx:id="matchStart" text="START" minWidth="130"/></columns>
                     </TableView>
                     <Label text="Series scores count completed map wins. Round scores (for example 13–10) are entered separately for each map." styleClass="muted" wrapText="true"/>
+                </VBox>
+            </Tab>
+            <Tab text="Groups">
+                <VBox spacing="12" styleClass="tournament-tab" minHeight="0">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="4 teams per group · top 2 advance" styleClass="panel-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <ComboBox fx:id="groupFormat" value="Bo3" styleClass="compact-combo"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Bo1"/><String fx:value="Bo3"/><String fx:value="Bo5"/></FXCollections></items></ComboBox>
+                        <Button fx:id="drawGroups" text="Draw groups" styleClass="primary" onAction="#generateGroups"/>
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Playoff match format" styleClass="muted"/><Region HBox.hgrow="ALWAYS"/>
+                        <ComboBox fx:id="playoffFormat" value="Bo3" styleClass="compact-combo"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Bo1"/><String fx:value="Bo3"/><String fx:value="Bo5"/></FXCollections></items></ComboBox>
+                        <Button fx:id="qualifyGroups" text="Generate playoffs" styleClass="secondary" onAction="#generateGroupPlayoffs"/>
+                    </HBox>
+                    <Label text="Win: 3 pts · Loss: 0 pts. Ties: head-to-head among tied teams → map difference → maps won → original seed." styleClass="muted" wrapText="true"/>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" minHeight="0"><VBox fx:id="groupPanels" spacing="12"/></ScrollPane>
+                    <Label fx:id="groupProgress" styleClass="bracket-caption" wrapText="true"/>
                 </VBox>
             </Tab>
             <Tab text="Bracket">

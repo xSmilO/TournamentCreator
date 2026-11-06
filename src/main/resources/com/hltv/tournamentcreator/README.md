@@ -14,6 +14,7 @@ Open the FXML files in Scene Builder to edit layouts, controls, table columns, s
 | Tournament management | TournamentManager.fxml, TournamentTeamsModal.fxml | TournamentManagerController |
 | Matches and map scores | MatchCreatorModal.fxml, MatchScoresModal.fxml | TournamentManagerController |
 | Bracket rounds, matches, and connectors | components/Bracket*.fxml | TournamentManagerController |
+| Group standings and fixtures | components/GroupPanel.fxml, components/GroupMatchRow.fxml | TournamentManagerController |
 | Tournament participants | DetailModal.fxml | DetailDialog |
 | Repeated cards and rows | components/*.fxml | Populated by the owning controller |
 

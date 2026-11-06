@@ -2,6 +2,7 @@ package com.hltv.tournamentcreator.controllers;
 
 import com.hltv.tournamentcreator.dao.MatchDAO;
 import com.hltv.tournamentcreator.dao.TournamentDAO;
+import com.hltv.tournamentcreator.dao.GroupStageDAO;
 import com.hltv.tournamentcreator.models.*;
 import com.hltv.tournamentcreator.utils.*;
 import javafx.beans.property.SimpleStringProperty;
@@ -26,15 +27,18 @@ public final class TournamentManagerController {
     private final Tournament tournament;
     private final TournamentDAO tournaments;
     private final MatchDAO matches;
+    private final GroupStageDAO groups;
     private final Runnable onChanged;
     private List<TournamentParticipant> participants = List.of();
     private List<TournamentMatch> currentMatches = List.of();
+    private List<TournamentGroup> currentGroups = List.of();
+    private Tab resultReturnTab;
     private int capacity;
     private TournamentMatch editingMatch;
     private List<MapResult> originalMaps = List.of();
     private final List<ScoreRow> scoreRows = new ArrayList<>();
     private record ScoreRow(UUID id, int order, FxmlViews.Fragment view) {}
-    private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit) {}
+    private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups) {}
 
     @FXML private VBox managerRoot, teamPickerRoot, matchFormRoot, scoreRoot, mapRows;
     @FXML private Label title, managerStatus, champion, teamPickerStatus, matchFormStatus, scoreTitle, scoreStatus, seriesSummary, capacityLabel;
@@ -52,9 +56,17 @@ public final class TournamentManagerController {
     @FXML private TabPane tabs;
     @FXML private Tab matchesTab;
     @FXML private HBox bracketColumns;
+    @FXML private VBox groupPanels;
+    @FXML private Label groupProgress;
+    @FXML private Button drawGroups, qualifyGroups;
+    @FXML private ComboBox<String> groupFormat, playoffFormat;
 
     public TournamentManagerController(Tournament tournament, TournamentDAO tournaments, MatchDAO matches, Runnable onChanged) {
-        this.tournament = tournament; this.tournaments = tournaments; this.matches = matches; this.onChanged = onChanged;
+        this(tournament,tournaments,matches,new GroupStageDAO(),onChanged);
+    }
+
+    public TournamentManagerController(Tournament tournament, TournamentDAO tournaments, MatchDAO matches, GroupStageDAO groups, Runnable onChanged) {
+        this.tournament = tournament; this.tournaments = tournaments; this.matches = matches; this.groups = groups; this.onChanged = onChanged;
     }
 
     public void show() {
@@ -74,26 +86,99 @@ public final class TournamentManagerController {
 
     @FXML private void refresh() {
         refresh.setDisable(true); addTeams.setDisable(true); addMatch.setDisable(true); generate.setDisable(true); saveLimit.setDisable(true);
+        drawGroups.setDisable(true); qualifyGroups.setDisable(true);
         managerStatus.setText("Loading tournament…");
         BackgroundTask.run(() -> new Snapshot(tournaments.getRegisteredTeams(tournament.tournamentId()), matches.getMatches(tournament.tournamentId()),
-                tournaments.getTeamLimit(tournament.tournamentId())), data -> {
+                tournaments.getTeamLimit(tournament.tournamentId()), groups.getGroups(tournament.tournamentId())), data -> {
             participants = data.teams(); currentMatches = data.matches();
+            currentGroups = data.groups();
             capacity = data.limit();
             teamLimitField.setText(Integer.toString(capacity));
             capacityLabel.setText(participants.size() + " / " + capacity + " teams registered");
             participantsTable.getItems().setAll(participants);
             matchesTable.getItems().setAll(currentMatches);
             boolean bracket = currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()));
-            addTeams.setDisable(bracket || participants.size() >= capacity);
-            addMatch.setDisable(bracket || participants.size() < 2);
-            generate.setDisable(participants.size() < 2 || !currentMatches.isEmpty());
+            addTeams.setDisable(bracket || !currentGroups.isEmpty() || participants.size() >= capacity);
+            addMatch.setDisable(bracket || !currentGroups.isEmpty() || participants.size() < 2);
+            generate.setDisable(participants.size() < 2 || !currentMatches.isEmpty() || !currentGroups.isEmpty());
             bracketFormat.setDisable(!currentMatches.isEmpty());
+            drawGroups.setDisable(!currentGroups.isEmpty() || !currentMatches.isEmpty() || participants.size() < 4 || participants.size() % 4 != 0);
+            groupFormat.setDisable(!currentGroups.isEmpty() || !currentMatches.isEmpty());
+            playoffFormat.setDisable(bracket);
+            try { qualifyGroups.setDisable(bracket || !GroupStage.complete(currentGroups,currentMatches)); }
+            catch (IllegalArgumentException invalid) { qualifyGroups.setDisable(true); }
+            renderGroups(bracket);
             renderBracket();
             managerStatus.setText(participants.size() + " / " + capacity + " teams · " + currentMatches.size() + " matches"
-                    + (bracket ? " · Bracket generated; registration is closed" : " · Register teams before generating a bracket"));
+                    + (bracket ? " · Bracket generated; registration is closed" : !currentGroups.isEmpty()
+                    ? " · Group stage drawn; registration is closed" : " · Register teams before drawing groups or generating a bracket"));
             refresh.setDisable(false);
             saveLimit.setDisable(false);
         }, error -> { managerStatus.setText(error(error)); refresh.setDisable(false); });
+    }
+
+    @FXML private void generateGroups() {
+        managerRoot.setDisable(true); groupProgress.setText("Drawing groups and scheduling round-robin matches…");
+        String format = groupFormat.getValue();
+        BackgroundTask.run(() -> { groups.generateGroups(tournament.tournamentId(),format); return null; }, ignored -> {
+            managerRoot.setDisable(false); onChanged.run(); refresh();
+        }, error -> { managerRoot.setDisable(false); groupProgress.setText(error(error)); });
+    }
+
+    @FXML private void generateGroupPlayoffs() {
+        managerRoot.setDisable(true); groupProgress.setText("Qualifying the top two teams from each group…");
+        String format = playoffFormat.getValue();
+        BackgroundTask.run(() -> { groups.generatePlayoffs(tournament.tournamentId(),format); return null; }, ignored -> {
+            managerRoot.setDisable(false); refresh();
+        }, error -> { managerRoot.setDisable(false); groupProgress.setText(error(error)); });
+    }
+
+    private void renderGroups(boolean playoffs) {
+        groupPanels.getChildren().clear();
+        if (currentGroups.isEmpty()) {
+            groupProgress.setText("Register teams in multiples of four, then draw groups. Each group plays six matches; the top two advance.");
+            return;
+        }
+        long finished = currentMatches.stream().filter(m -> m.groupId()!=null && "Completed".equals(m.status())).count();
+        groupProgress.setText(currentGroups.size()+" groups · "+finished+" / "+currentGroups.size()*6+" group matches completed"
+                +(playoffs ? " · Playoffs generated; group results are locked" : !qualifyGroups.isDisabled()
+                ? " · Ready to generate playoffs" : " · Complete all groups to generate playoffs"));
+        for (var group:currentGroups) {
+            var view = FxmlViews.load("components/GroupPanel.fxml");
+            TitledPane pane = view.get("pane");
+            long played = currentMatches.stream().filter(m -> group.groupId().equals(m.groupId()) && "Completed".equals(m.status())).count();
+            pane.setText(group.name()+" · "+played+" / 6 matches completed");
+            boolean[] populated = {false};
+            Runnable populate = () -> {
+                if (populated[0]) return;
+                populated[0] = true;
+                final List<GroupStanding> table;
+                try { table=GroupStage.standings(group,currentMatches); }
+                catch (IllegalArgumentException invalid) { view.<Label>get("notice").setText(invalid.getMessage()); return; }
+                TableView<GroupStanding> standings = view.get("standings");
+                bind(view.get("position"), (GroupStanding row) -> Integer.toString(table.indexOf(row)+1)+(table.indexOf(row)<2 ? "  Q" : ""));
+                bind(view.get("team"), GroupStanding::name); bind(view.get("played"), (GroupStanding row) -> Integer.toString(row.played()));
+                bind(view.get("wins"), (GroupStanding row) -> Integer.toString(row.wins())); bind(view.get("losses"), (GroupStanding row) -> Integer.toString(row.losses()));
+                bind(view.get("maps"), (GroupStanding row) -> row.mapsWon()+" : "+row.mapsLost());
+                bind(view.get("difference"), (GroupStanding row) -> (row.mapDifference()>0 ? "+" : "")+row.mapDifference());
+                bind(view.get("points"), (GroupStanding row) -> Integer.toString(row.points()));
+                standings.getItems().setAll(table);
+                view.<Label>get("notice").setText(playoffs ? "Q = qualified. Group results are locked." : "Q marks the current top two; qualification is provisional until all group matches finish.");
+                VBox fixtures = view.get("fixtures");
+                for (var match:currentMatches.stream().filter(m -> group.groupId().equals(m.groupId())).toList()) {
+                    var matchView = FxmlViews.load("components/GroupMatchRow.fxml");
+                    matchView.<Label>get("teams").setText(match.opponents());
+                    matchView.<Label>get("details").setText(match.round()+" · "+match.format());
+                    matchView.<Label>get("result").setText(match.score()+" · "+match.status());
+                    matchView.<Button>get("open").setDisable(playoffs);
+                    matchView.<Button>get("open").setOnAction(event -> showScores(match));
+                    fixtures.getChildren().add(matchView.root());
+                }
+            };
+            pane.expandedProperty().addListener((obs, old, expanded) -> { if (expanded) populate.run(); });
+            groupPanels.getChildren().add(pane);
+            if (group.order()==1) pane.setExpanded(true);
+        }
     }
 
     @FXML private void showTeamPicker() {
@@ -193,6 +278,9 @@ public final class TournamentManagerController {
 
     private void showScores(TournamentMatch match) {
         if (match == null) return;
+        if (match.groupId()!=null && currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()))) {
+            managerStatus.setText("Group results are locked because playoffs have already been generated."); return;
+        }
         if (match.team1Id() == null || match.team2Id() == null) {
             managerStatus.setText(isBye(match) ? "This team advanced automatically with a bye." : "Waiting for both teams to qualify for this match.");
             return;
@@ -201,6 +289,7 @@ public final class TournamentManagerController {
         try { limit = MatchResults.mapLimit(match.format()); }
         catch (IllegalArgumentException error) { managerStatus.setText(error.getMessage()); return; }
         editingMatch = match;
+        resultReturnTab = tabs.getSelectionModel().getSelectedItem();
         var view = FxmlViews.load("MatchScoresModal.fxml", this);
         scoreTitle.setText(match.opponents() + " · " + match.format());
         scoreRows.clear();
@@ -268,14 +357,18 @@ public final class TournamentManagerController {
         List<MapResult> previous = originalMaps;
         scoreRoot.setDisable(true); scoreStatus.setText("Saving maps and updating the bracket…");
         BackgroundTask.run(() -> { matches.saveScores(match, previous, scores); return null; }, ignored -> {
-            backToManager(); tabs.getSelectionModel().select(matchesTab); refresh();
+            backToManager(); tabs.getSelectionModel().select(resultReturnTab == null ? matchesTab : resultReturnTab); refresh();
         }, error -> { scoreRoot.setDisable(false); scoreStatus.setText(error(error)); });
     }
 
     private void renderBracket() {
         bracketColumns.getChildren().clear();
         List<TournamentMatch> bracket = currentMatches.stream().filter(m -> SingleElimination.STAGE.equals(m.stage())).toList();
-        if (bracket.isEmpty()) { champion.setText("Register your teams, choose Bo1/Bo3/Bo5, then generate a seeded single elimination bracket."); return; }
+        if (bracket.isEmpty()) {
+            champion.setText(currentGroups.isEmpty() ? "Register your teams, choose Bo1/Bo3/Bo5, then generate a seeded single elimination bracket."
+                    : "Complete every group match, then use Groups → Generate playoffs. The qualified teams will appear here.");
+            return;
+        }
         TournamentMatch last = bracket.stream().filter(m -> m.nextMatchId() == null).findFirst().orElse(null);
         if (last == null) { champion.setText("The saved bracket is missing its final."); return; }
         Map<UUID,List<TournamentMatch>> feeders = new HashMap<>();
@@ -333,6 +426,8 @@ public final class TournamentManagerController {
             if ("23505".equals(sql.getSQLState())) return "One of these teams is already registered. Reopen the team picker to refresh the list.";
             if ("23503".equals(sql.getSQLState())) return "A selected team or tournament no longer exists. Close and refresh the tournament list.";
             if ("P0001".equals(sql.getSQLState())) return sql.getMessage();
+            if ("42P01".equals(sql.getSQLState()) || "42703".equals(sql.getSQLState()))
+                return "The database needs the latest tournament migrations. Apply the SQL files in db/migrations, then refresh.";
         }
         if (error instanceof IllegalArgumentException) return error.getMessage();
         return "Could not save or load tournament data. Check the database connection and try again.";

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<Button fx:id="open" styleClass="group-match" maxWidth="Infinity" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <graphic>
+        <HBox alignment="CENTER_LEFT" spacing="16">
+            <VBox spacing="5" HBox.hgrow="ALWAYS"><Label fx:id="teams" styleClass="identity-name"/><Label fx:id="details" styleClass="muted"/></VBox>
+            <Label fx:id="result" styleClass="accent"/>
+        </HBox>
+    </graphic>
+</Button>

@@ -14,12 +14,7 @@ public final class SingleElimination {
         if (teams.size() > 256) throw new IllegalArgumentException("A bracket can contain at most 256 teams.");
         int size = 2;
         while (size < teams.size()) size *= 2;
-        List<Integer> seeds = new ArrayList<>(List.of(1, 2));
-        for (int n = 4; n <= size; n *= 2) {
-            List<Integer> next = new ArrayList<>();
-            for (int seed : seeds) { next.add(seed); next.add(n + 1 - seed); }
-            seeds = next;
-        }
+        List<Integer> seeds = seedOrder(size);
         List<List<UUID>> ids = new ArrayList<>();
         for (int count = size / 2; count >= 1; count /= 2) {
             List<UUID> round = new ArrayList<>();
@@ -46,5 +41,17 @@ public final class SingleElimination {
             }
         }
         return List.copyOf(result);
+    }
+
+    public static List<Integer> seedOrder(int size) {
+        if (size < 2 || size > 256 || (size & (size - 1)) != 0)
+            throw new IllegalArgumentException("Bracket size must be a power of two from 2 to 256.");
+        List<Integer> seeds = new ArrayList<>(List.of(1, 2));
+        for (int n = 4; n <= size; n *= 2) {
+            List<Integer> next = new ArrayList<>();
+            for (int seed : seeds) { next.add(seed); next.add(n + 1 - seed); }
+            seeds = next;
+        }
+        return List.copyOf(seeds);
     }
 }

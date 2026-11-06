@@ -68,3 +68,10 @@
 .bracket-lines { -fx-fill: transparent; -fx-stroke: #454f60; -fx-stroke-width: 1; }
 .winner-name { -fx-text-fill: #56c27a; }
 .bracket-caption { -fx-text-fill: #ffb166; -fx-font-size: 12; }
+.group-panel > .title { -fx-background-color: #1a202a; -fx-padding: 12 16; }
+.group-panel > .title > .text { -fx-fill: #ebedf3; }
+.group-panel > .content { -fx-background-color: #11151c; -fx-border-color: #2a303a; }
+.group-panel-content { -fx-padding: 12; }
+.group-panel .table-row-cell { -fx-cell-size: 42; }
+.group-match { -fx-background-color: #151a22; -fx-border-color: #242a34; -fx-padding: 12; -fx-alignment: center-left; }
+.group-match:hover { -fx-border-color: #ff8a24; }
