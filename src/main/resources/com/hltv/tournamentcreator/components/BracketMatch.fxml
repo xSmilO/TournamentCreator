@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<Button fx:id="matchButton" styleClass="bracket-match" maxWidth="Infinity" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <graphic><VBox spacing="10" prefWidth="196">
+        <HBox spacing="10"><Label fx:id="firstName" text="TBD" styleClass="identity-name" maxWidth="160"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="firstScore" text="0" styleClass="accent"/></HBox>
+        <HBox spacing="10"><Label fx:id="secondName" text="TBD" styleClass="identity-name" maxWidth="160"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="secondScore" text="0" styleClass="accent"/></HBox>
+        <Label fx:id="status" styleClass="muted"/>
+    </VBox></graphic>
+</Button>

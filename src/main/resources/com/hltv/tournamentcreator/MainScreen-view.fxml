@@ -1,111 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.String?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-
-<StackPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.hltv.tournamentcreator.controllers.MainController">
-    <children>
-        <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-              minWidth="-Infinity" prefHeight="540.0" prefWidth="1024.0">
-            <children>
-                <VBox id="sidebar" alignment="CENTER" stylesheets="@css/sidebar.css">
-                    <children>
-                        <HBox id="title" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
-                            <children>
-                                <ImageView id="hero-icon" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true"
-                                           preserveRatio="true" rotate="-12.3" smooth="false" HBox.hgrow="NEVER">
-                                    <image>
-                                        <Image url="@assets/hero-icon.png"/>
-                                    </image>
-                                </ImageView>
-                                <Text id="title-text" fill="WHITE" nodeOrientation="LEFT_TO_RIGHT" strokeType="OUTSIDE"
-                                      strokeWidth="0.0" text="WinIt"/>
-                            </children>
-                            <VBox.margin>
-                                <Insets bottom="10.0" top="10.0"/>
-                            </VBox.margin>
-                        </HBox>
-                        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="splitter" VBox.vgrow="NEVER">
-                            <VBox.margin>
-                                <Insets bottom="20.0"/>
-                            </VBox.margin>
-                        </Pane>
-                        <Button fx:id="navDashboardBtn" graphicTextGap="16.0" maxHeight="-Infinity"
-                                minHeight="-Infinity" mnemonicParsing="false" stylesheets="@css/sidebar.css"
-                                text="Dashboard" VBox.vgrow="ALWAYS" onAction="#onDashboardClicked"
-                                styleClass="menu-item">
-                            <font>
-                                <Font name="System Bold Italic" size="12.0"/>
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                                    <image>
-                                        <Image url="@assets/menu_dashboard_icon.png"/>
-                                    </image>
-                                </ImageView>
-                            </graphic>
-
-                        </Button>
-                        <Button fx:id="navTournamentsBtn" graphicTextGap="16.0" maxHeight="-Infinity"
-                                minHeight="-Infinity"
-                                mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css"
-                                text="Tournaments" onAction="#onTournamentsClicked">
-                            <font>
-                                <Font name="System Bold Italic" size="12.0"/>
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                                    <image>
-                                        <Image url="@assets/menu_tournaments_icon.png"/>
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="navTeamsBtn" alignment="CENTER" graphicTextGap="16.0" maxHeight="-Infinity"
-                                minHeight="-Infinity"
-                                mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css"
-                                text="Teams" onAction="#onTeamsClicked">
-                            <font>
-                                <Font name="System Bold Italic" size="12.0"/>
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                                    <image>
-                                        <Image url="@assets/menu_players_icon.png"/>
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="navPlayersBtn" graphicTextGap="16.0" maxHeight="-Infinity" minHeight="-Infinity"
-                                mnemonicParsing="false" styleClass="menu-item" stylesheets="@css/sidebar.css"
-                                text="Players" onAction="#onPlayersClicked">
-                            <font>
-                                <Font name="System Bold Italic" size="12.0"/>
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" smooth="false">
-                                    <image>
-                                        <Image url="@assets/men_player_icon.png"/>
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                    </children>
-                </VBox>
-                <Pane id="content-pane" fx:id="contentPane" stylesheets="@css/contentPane.css" HBox.hgrow="ALWAYS"/>
-            </children>
-        </HBox>
-        <StackPane id="modal-overlay" fx:id="modalOverlay" maxHeight="1.7976931348623157E308"
-                   maxWidth="1.7976931348623157E308" StackPane.alignment="CENTER"/>
-    </children>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="appRoot" styleClass="app-shell" prefWidth="1440" prefHeight="900" stylesheets="@css/app.css"
+ xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hltv.tournamentcreator.controllers.MainController">
+ <HBox>
+  <VBox styleClass="sidebar" prefWidth="228" minWidth="228" maxWidth="228">
+   <HBox styleClass="brand" alignment="CENTER_LEFT" spacing="11"><Label text="W" styleClass="brand-mark"/><Label text="WinIt" styleClass="brand-name"/><Label text="." styleClass="brand-dot"/></HBox>
+   <VBox styleClass="workspace" spacing="12">
+    <Label text="WORKSPACE" styleClass="eyebrow"/>
+    <HBox styleClass="workspace-picker" alignment="CENTER_LEFT" spacing="10"><Label text="W" styleClass="workspace-logo"/><VBox spacing="3"><Label text="Competition hub" styleClass="workspace-title"/><Label text="Local workspace" styleClass="muted"/></VBox></HBox>
+   </VBox>
+   <Label text="MANAGE" styleClass="nav-caption"/>
+   <VBox spacing="4">
+    <Button fx:id="navDashboardBtn" text="Overview" onAction="#onDashboardClicked" styleClass="nav-item" maxWidth="Infinity"/>
+    <Button fx:id="navTournamentsBtn" text="Tournaments" onAction="#onTournamentsClicked" styleClass="nav-item" maxWidth="Infinity"/>
+    <Button fx:id="navTeamsBtn" text="Teams" onAction="#onTeamsClicked" styleClass="nav-item" maxWidth="Infinity"/>
+    <Button fx:id="navPlayersBtn" text="Players" onAction="#onPlayersClicked" styleClass="nav-item" maxWidth="Infinity"/>
+   </VBox>
+   <Region VBox.vgrow="ALWAYS"/>
+   <VBox styleClass="sidebar-footer" spacing="14"><Label text="YOUR COMPETITION. YOUR RULES." styleClass="eyebrow"/><HBox alignment="CENTER_LEFT" spacing="10"><Label text="W" styleClass="avatar"/><VBox spacing="4"><Label text="Tournament manager" styleClass="workspace-title"/><Label text="WinIt workspace" styleClass="muted"/></VBox></HBox></VBox>
+  </VBox>
+  <VBox HBox.hgrow="ALWAYS" minWidth="0">
+   <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="14">
+    <TextField fx:id="globalSearch" promptText="Search current directory..." styleClass="global-search" prefWidth="360"/>
+    <Region HBox.hgrow="ALWAYS"/>
+    <Label text="COMPETITION MANAGER" styleClass="eyebrow"/>
+    <MenuButton text="＋  Create new" styleClass="primary"><items><MenuItem text="Tournament" onAction="#createTournament"/><MenuItem text="Team" onAction="#createTeam"/><MenuItem text="Player" onAction="#createPlayer"/></items></MenuButton>
+   </HBox>
+   <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS" minHeight="0"/>
+  </VBox>
+ </HBox>
+ <StackPane fx:id="modalOverlay" styleClass="modal-overlay" visible="false"/>
 </StackPane>

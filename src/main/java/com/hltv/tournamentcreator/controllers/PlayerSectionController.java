@@ -3,83 +3,26 @@ package com.hltv.tournamentcreator.controllers;
 import com.hltv.tournamentcreator.dao.PlayerDAO;
 import com.hltv.tournamentcreator.models.Player;
 import com.hltv.tournamentcreator.utils.ModalManager;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import java.util.List;
 
-import java.time.LocalDate;
-import java.util.concurrent.CompletableFuture;
-
-public class PlayerSectionController {
-    @FXML private TableView<Player> playersTable;
-    @FXML private TableColumn<Player, String> colNickname;
-    @FXML private TableColumn<Player, String> colFirstName;
-    @FXML private TableColumn<Player, String> colSurname;
-    @FXML private TableColumn<Player, String> colCountry;
-    @FXML private TableColumn<Player, String> colTeam;
-
-    private final PlayerDAO playerDAO = new PlayerDAO();
-
-    @FXML
-    private void openPlayerCreator() {
-        ModalManager.getInstance().showModal("/com/hltv/tournamentcreator/PlayerCreatorModal.fxml");
+public class PlayerSectionController extends DatabaseSectionController<Player> {
+    private final PlayerDAO dao = new PlayerDAO();
+    @Override protected String sectionName() { return "Players"; }
+    @Override protected List<Player> fetchRows() throws Exception { return dao.getAllPlayers(); }
+    @Override protected void configureColumns() {
+        identityColumn("PLAYER", Player::nickname, p -> value(p.firstName()) + " " + value(p.lastName()), "user");
+        column("COUNTRY", p -> p.country() == null ? "—" : p.country().name());
+        column("TEAM", p -> p.team() == null ? "Free agent" : p.team().name());
+        column("HLTV RATING", p -> String.format(java.util.Locale.ROOT, "%.2f", p.hltvRating()));
+        column("HEADSHOTS", p -> String.format(java.util.Locale.ROOT, "%.1f%%", p.headshotPercentage()));
     }
-
-    @FXML
-    public void initialize() {
-        setupColumns();
-        loadData();
+    private String value(String value) { return value == null ? "" : value; }
+    @Override protected List<String> filterOptions() { return List.of("All players", "On a team", "Free agents"); }
+    @Override protected boolean matchesFilter(Player player, String filter) {
+        return "On a team".equals(filter) ? player.team() != null
+                : !"Free agents".equals(filter) || player.team() == null;
     }
-
-    private void setupColumns() {
-        colNickname.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().nickname()));
-        colFirstName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().firstName()));
-        colSurname.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().lastName()));
-
-
-        colCountry.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().country().name()) // Assuming your Country record has name()
-        );
-
-        colTeam.setCellValueFactory(data -> {
-            // Check if the team is null (Free Agent)
-            return new SimpleStringProperty(
-                    data.getValue().team() != null ? data.getValue().team().name() : "No team"
-            );
-        });
-//
-//        colDateOfBirth.setCellValueFactory(data ->
-//                new SimpleObjectProperty<>(data.getValue().dateOfBirth())
-//        );
-//
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        colDateOfBirth.setCellFactory(column -> new TableCell<Player, LocalDate>() {
-//            @Override
-//            protected void updateItem(LocalDate date, boolean empty) {
-//                super.updateItem(date, empty);
-//                if (empty || date == null) {
-//                    setText(null);
-//                } else {
-//                    setText(formatter.format(date));
-//                }
-//            }
-//        });
-    }
-
-    private void loadData() {
-        CompletableFuture.supplyAsync(() -> playerDAO.getAllPlayers())
-                .thenAccept(players -> {
-                    // Must update JavaFX UI on the main thread
-                    Platform.runLater(() -> {
-                        playersTable.getItems().setAll(players);
-                    });
-                })
-                .exceptionally(ex -> {
-                    ex.printStackTrace();
-                    return null;
-                });
+    @Override protected void openCreator() {
+        ModalManager.getInstance().showModal("/com/hltv/tournamentcreator/PlayerCreatorModal.fxml", this::loadData);
     }
 }

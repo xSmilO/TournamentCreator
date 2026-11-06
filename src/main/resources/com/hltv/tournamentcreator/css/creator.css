@@ -1,0 +1,70 @@
+@import "app.css";
+#creator-form .primary, #creator-form .secondary,
+#roster-dialog .primary, #roster-dialog .secondary,
+#role-prompt .primary, #role-prompt .secondary {
+    -fx-min-height: 37;
+    -fx-pref-height: 37;
+    -fx-max-height: 37;
+}
+#creator-form .primary, #roster-dialog .primary, #role-prompt .primary {
+    -fx-padding: 8 17;
+}
+#creator-form {
+    -fx-background-color: #12161d;
+    -fx-border-color: #333a46;
+    -fx-border-width: 1;
+    -fx-padding: 26;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,.55), 50, 0, 0, 18);
+}
+.creator-title { -fx-text-fill: #ebedf3; -fx-font-size: 22; -fx-font-weight: bold; }
+#creator-form .input-label { -fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #aab0ba; }
+#creator-form .creator-status { -fx-text-fill: #ffb166; -fx-font-size: 11; }
+#creator-form .scroll-pane { -fx-padding: 0 10 0 0; }
+#creator-form .text-field { -fx-min-height: 39; }
+#creator-form .combo-box {
+    -fx-min-height: 39;
+    -fx-pref-height: 39;
+    -fx-max-height: 39;
+    -fx-padding: 0 4;
+}
+#creator-form .combo-box > .list-cell { -fx-padding: 0 8; }
+#creator-form .check-box { -fx-text-fill: #aab0ba; -fx-padding: 5 0; }
+#creator-form .check-box .box { -fx-background-color: #0d1116; -fx-border-color: #38404c; -fx-border-radius: 3; }
+#creator-form .check-box:selected .mark { -fx-background-color: #ff8a24; }
+#creator-form .date-picker { -fx-background-color: #0d1116; -fx-border-color: #2a303a; }
+#creator-form .date-picker > .text-field { -fx-border-width: 0; }
+#creator-form .date-picker > .arrow-button { -fx-background-color: #20262f; }
+#creator-form .date-picker > .arrow-button .arrow { -fx-background-color: #969da9; }
+#roster-dialog .creator-status, #role-prompt .creator-status { -fx-text-fill: #ffb166; -fx-font-size: 11; }
+#role-prompt .combo-box { -fx-min-height: 40; }
+#role-prompt .combo-box .text-field { -fx-border-width: 0; }
+
+/* FXML view sizing and shared form spacing. */
+.creator-dialog { -fx-spacing: 14; -fx-pref-width: 560; -fx-max-width: 560; -fx-max-height: 660; }
+.form-field { -fx-spacing: 5; }
+.roster-dialog { -fx-spacing: 18; -fx-max-width: 850; -fx-max-height: 640; -fx-min-height: 0; }
+.role-dialog { -fx-spacing: 18; -fx-max-width: 560; -fx-max-height: 340; -fx-min-height: 0; }
+
+/* Tournament management, map results, and the dynamically populated bracket. */
+.tournament-manager { -fx-spacing: 18; -fx-max-width: 1040; -fx-max-height: 700; -fx-min-height: 0; }
+.score-dialog { -fx-spacing: 14; -fx-max-width: 850; -fx-max-height: 660; -fx-min-height: 0; }
+.tournament-tab { -fx-padding: 18 0 0 0; }
+#tournament-manager .primary, #tournament-manager .secondary { -fx-min-height: 37; -fx-pref-height: 37; -fx-max-height: 37; }
+#tournament-manager .primary { -fx-padding: 8 17; }
+.compact-combo { -fx-min-height: 37; -fx-pref-height: 37; -fx-max-height: 37; -fx-padding: 0 4; }
+.compact-combo > .list-cell { -fx-padding: 0 8; }
+.tab-pane > .tab-header-area > .tab-header-background { -fx-background-color: #12161d; }
+.tab-pane .tab { -fx-background-color: #151a22; -fx-padding: 10 20; -fx-border-color: transparent; -fx-border-width: 0 0 2 0; }
+.tab-pane .tab:selected { -fx-background-color: #1a1f27; -fx-border-color: #ff8a24; }
+.tab-pane .tab .tab-label { -fx-text-fill: #aab0bb; }
+.tab-pane .tab:selected .tab-label { -fx-text-fill: #ebedf3; }
+.map-score-row { -fx-padding: 14; -fx-border-color: #2a303a; -fx-background-color: #0d1116; }
+.bracket-round { -fx-min-width: 230; -fx-pref-width: 230; -fx-max-width: 230; }
+.bracket-round-title { -fx-min-height: 36; -fx-pref-height: 36; -fx-font-weight: bold; }
+.bracket-slot { -fx-min-width: 230; -fx-max-width: 230; }
+.bracket-match { -fx-background-color: #171d26; -fx-border-color: #343c49; -fx-border-radius: 3; -fx-padding: 12; -fx-pref-height: 100; -fx-max-height: 100; -fx-alignment: center-left; }
+.bracket-match:hover { -fx-border-color: #ff8a24; }
+.bracket-match:disabled { -fx-opacity: .8; }
+.bracket-lines { -fx-fill: transparent; -fx-stroke: #454f60; -fx-stroke-width: 1; }
+.winner-name { -fx-text-fill: #56c27a; }
+.bracket-caption { -fx-text-fill: #ffb166; -fx-font-size: 12; }

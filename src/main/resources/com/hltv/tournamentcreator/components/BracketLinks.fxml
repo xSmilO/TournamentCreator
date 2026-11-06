@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+<VBox minWidth="32" prefWidth="32" maxWidth="32" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Region minHeight="36" prefHeight="36"/>
+    <Pane><SVGPath fx:id="lines" styleClass="bracket-lines"/></Pane>
+</VBox>

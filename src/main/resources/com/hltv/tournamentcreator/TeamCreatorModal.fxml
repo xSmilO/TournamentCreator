@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="creatorRoot" id="creator-form" styleClass="creator-dialog" stylesheets="@css/creator.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hltv.tournamentcreator.controllers.TeamCreatorController">
+    <HBox alignment="CENTER_LEFT">
+        <VBox spacing="6" HBox.hgrow="ALWAYS"><Label text="NEW ENTRY" styleClass="eyebrow"/><Label text="Create team" styleClass="creator-title"/></VBox>
+        <Button text="✕" styleClass="secondary" onAction="#handleCancel"/>
+    </HBox>
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+        <VBox spacing="12">
+                <VBox styleClass="form-field"><Label text="Team name *" styleClass="input-label"/><TextField fx:id="name" promptText="Team name (required)"/></VBox>
+                <VBox styleClass="form-field"><Label text="World ranking" styleClass="input-label"/><TextField fx:id="ranking" promptText="Optional world ranking"/></VBox>
+                <Label text="Roster — select available free agents (optional)" styleClass="input-label"/>
+            <Label fx:id="choicesStatus" text="Loading…" wrapText="true" styleClass="muted"/>
+            <VBox fx:id="choices" spacing="6"/>
+            <Button fx:id="retry" text="Retry loading choices" styleClass="secondary" onAction="#retryChoices" visible="false" managed="false"/>
+        </VBox>
+    </ScrollPane>
+    <Label fx:id="status" wrapText="true" styleClass="creator-status"/>
+    <HBox alignment="CENTER_RIGHT" spacing="12">
+        <Button text="Cancel" styleClass="secondary" onAction="#handleCancel"/>
+        <Button fx:id="save" id="add-btn" text="Create team  →" styleClass="primary" onAction="#handleSave"/>
+    </HBox>
+</VBox>

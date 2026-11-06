@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane fx:id="slot" alignment="CENTER" styleClass="bracket-slot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"/>

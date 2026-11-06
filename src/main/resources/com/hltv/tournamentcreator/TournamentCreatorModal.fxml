@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="creatorRoot" id="creator-form" styleClass="creator-dialog" stylesheets="@css/creator.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hltv.tournamentcreator.controllers.TournamentCreatorController">
+    <HBox alignment="CENTER_LEFT">
+        <VBox spacing="6" HBox.hgrow="ALWAYS"><Label text="NEW ENTRY" styleClass="eyebrow"/><Label text="Create tournament" styleClass="creator-title"/></VBox>
+        <Button text="✕" styleClass="secondary" onAction="#handleCancel"/>
+    </HBox>
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+        <VBox spacing="12">
+                <VBox styleClass="form-field"><Label text="Tournament name *" styleClass="input-label"/><TextField fx:id="name"/></VBox>
+                <VBox styleClass="form-field"><Label text="Team limit *" styleClass="input-label"/><TextField fx:id="teamLimit" text="16" promptText="2–256 teams"/></VBox>
+                <VBox styleClass="form-field"><Label text="Tier" styleClass="input-label"/><ComboBox fx:id="tier" value="Unspecified" maxWidth="Infinity"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Unspecified"/><String fx:value="S-Tier"/><String fx:value="A-Tier"/><String fx:value="B-Tier"/><String fx:value="C-Tier"/></FXCollections></items></ComboBox></VBox>
+                <VBox styleClass="form-field"><Label text="Start date (optional)" styleClass="input-label"/><DatePicker fx:id="start" maxWidth="Infinity"/></VBox>
+                <VBox styleClass="form-field"><Label text="End date (optional)" styleClass="input-label"/><DatePicker fx:id="end" maxWidth="Infinity"/></VBox>
+                <VBox styleClass="form-field"><Label text="Prize pool" styleClass="input-label"/><TextField fx:id="prize" promptText="Optional, e.g. 100000.00"/></VBox>
+                <VBox styleClass="form-field"><Label text="Location" styleClass="input-label"/><TextField fx:id="locationField"/></VBox>
+                <VBox styleClass="form-field"><Label text="Format" styleClass="input-label"/><TextField fx:id="format" promptText="Optional, e.g. Single elimination"/></VBox>
+                <Label text="Participants (optional) — selection order sets seeds" styleClass="input-label"/>
+            <Label fx:id="choicesStatus" text="Loading…" wrapText="true" styleClass="muted"/>
+            <VBox fx:id="choices" spacing="6"/>
+            <Button fx:id="retry" text="Retry loading choices" styleClass="secondary" onAction="#retryChoices" visible="false" managed="false"/>
+        </VBox>
+    </ScrollPane>
+    <Label fx:id="status" wrapText="true" styleClass="creator-status"/>
+    <HBox alignment="CENTER_RIGHT" spacing="12">
+        <Button text="Cancel" styleClass="secondary" onAction="#handleCancel"/>
+        <Button fx:id="save" id="add-btn" text="Create tournament  →" styleClass="primary" onAction="#handleSave"/>
+    </HBox>
+</VBox>

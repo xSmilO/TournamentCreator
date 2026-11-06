@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox styleClass="overview" stylesheets="@css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hltv.tournamentcreator.controllers.OverviewController">
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+        <VBox spacing="24" styleClass="dashboard-body">
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <VBox spacing="7" HBox.hgrow="ALWAYS">
+                    <Label text="COMPETITION CONTROL" styleClass="eyebrow, accent"/>
+                    <Label text="Your competition starts here." styleClass="page-title"/>
+                    <Label text="Here’s what’s happening across your competitions." styleClass="page-description"/>
+                </VBox>
+                <Label fx:id="date" styleClass="date-chip"/>
+            </HBox>
+            <HBox spacing="12">
+                <VBox spacing="12" styleClass="stat-card, spotlight" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox><Label text="TOURNAMENTS" styleClass="eyebrow"/><Region HBox.hgrow="ALWAYS"/><StackPane fx:id="tournamentIcon"/></HBox>
+                    <Label fx:id="tournamentTotal" text="—" styleClass="stat-total"/>
+                    <Label text="Your competition network" styleClass="muted"/>
+                </VBox>
+                <VBox spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox><Label text="REGISTERED TEAMS" styleClass="eyebrow"/><Region HBox.hgrow="ALWAYS"/><StackPane fx:id="teamIcon"/></HBox>
+                    <Label fx:id="teamTotal" text="—" styleClass="stat-total"/>
+                    <Label text="Ready to compete" styleClass="muted"/>
+                </VBox>
+                <VBox spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox><Label text="TOTAL PLAYERS" styleClass="eyebrow"/><Region HBox.hgrow="ALWAYS"/><StackPane fx:id="playerIcon"/></HBox>
+                    <Label fx:id="playerTotal" text="—" styleClass="stat-total"/>
+                    <Label text="Across your workspace" styleClass="muted"/>
+                </VBox>
+                <VBox spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox><Label text="MATCHES PLAYED" styleClass="eyebrow"/><Region HBox.hgrow="ALWAYS"/><StackPane fx:id="matchIcon"/></HBox>
+                    <Label fx:id="matchTotal" text="—" styleClass="stat-total"/>
+                    <Label text="Completed matches" styleClass="muted"/>
+                </VBox>
+            </HBox>
+            <HBox spacing="18">
+                <VBox styleClass="panel" minWidth="400" HBox.hgrow="ALWAYS">
+                    <HBox styleClass="panel-heading" spacing="10" alignment="CENTER_LEFT">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS"><Label text="SCHEDULE" styleClass="eyebrow"/><Label text="Upcoming matches" styleClass="panel-title"/></VBox>
+                        <Button text="View all  →" styleClass="text-button" onAction="#viewTournaments"/>
+                    </HBox>
+                    <VBox fx:id="schedule"/>
+                    <Label fx:id="scheduleEmpty" text="Loading scheduled matches…" styleClass="empty-copy" wrapText="true"/>
+                </VBox>
+                <VBox spacing="18" prefWidth="330" minWidth="300">
+                    <VBox styleClass="panel">
+                        <HBox styleClass="panel-heading" spacing="10" alignment="CENTER_LEFT">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS"><Label text="POWER RANKING" styleClass="eyebrow"/><Label text="Top teams" styleClass="panel-title"/></VBox>
+                            <Button text="View all  →" styleClass="text-button" onAction="#viewTeams"/>
+                        </HBox>
+                        <VBox fx:id="ranking"/>
+                        <Label fx:id="rankingEmpty" text="Loading team rankings…" styleClass="empty-copy" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="12" styleClass="promo">
+                        <Label text="QUICK ACTION" styleClass="eyebrow"/>
+                        <Label text="Ready to build your next competition?" styleClass="promo-title" wrapText="true"/>
+                        <Label text="Bring your teams together and create your next tournament." styleClass="promo-copy" wrapText="true"/>
+                        <Button text="Create tournament  →" styleClass="text-button" onAction="#createTournament"/>
+                    </VBox>
+                </VBox>
+            </HBox>
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <Label fx:id="status" text="Loading your workspace…" styleClass="muted"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="refresh" text="↻  Refresh" styleClass="secondary" onAction="#loadData"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

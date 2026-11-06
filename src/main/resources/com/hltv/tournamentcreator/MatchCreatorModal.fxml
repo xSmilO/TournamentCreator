@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="matchFormRoot" id="creator-form" styleClass="creator-dialog" stylesheets="@css/creator.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="6"><Label text="NEW MATCH" styleClass="eyebrow, accent"/><Label text="Schedule a match" styleClass="creator-title"/></VBox>
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS"><VBox spacing="14">
+        <VBox styleClass="form-field"><Label text="First team *" styleClass="input-label"/><ComboBox fx:id="firstTeam" promptText="Select registered team" minWidth="0" prefWidth="0" maxWidth="Infinity"/></VBox>
+        <VBox styleClass="form-field"><Label text="Second team *" styleClass="input-label"/><ComboBox fx:id="secondTeam" promptText="Select registered team" minWidth="0" prefWidth="0" maxWidth="Infinity"/></VBox>
+        <VBox styleClass="form-field"><Label text="Format *" styleClass="input-label"/><ComboBox fx:id="matchFormat" value="Bo3" maxWidth="Infinity"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Bo1"/><String fx:value="Bo3"/><String fx:value="Bo5"/></FXCollections></items></ComboBox></VBox>
+        <HBox spacing="14"><VBox styleClass="form-field" HBox.hgrow="ALWAYS"><Label text="Date (optional)" styleClass="input-label"/><DatePicker fx:id="matchDate" maxWidth="Infinity"/></VBox><VBox styleClass="form-field" HBox.hgrow="ALWAYS"><Label text="Time (24h)" styleClass="input-label"/><TextField fx:id="timeField" promptText="HH:mm"/></VBox></HBox>
+        <VBox styleClass="form-field"><Label text="Stage (optional)" styleClass="input-label"/><TextField fx:id="stageField" promptText="For example: Group stage"/></VBox>
+        <VBox styleClass="form-field"><Label text="Round (optional)" styleClass="input-label"/><TextField fx:id="roundField" promptText="For example: Round 1"/></VBox>
+    </VBox></ScrollPane>
+    <Label fx:id="matchFormStatus" styleClass="creator-status" wrapText="true"/>
+    <HBox alignment="CENTER_RIGHT" spacing="12"><Button text="Cancel" onAction="#backToManager" styleClass="secondary"/><Button fx:id="createMatch" id="create-tournament-match" text="Create match" onAction="#createMatch" styleClass="primary"/></HBox>
+</VBox>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<HBox alignment="CENTER_LEFT" spacing="12" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <StackPane fx:id="mark" styleClass="team-mark"/>
+    <VBox spacing="4" alignment="CENTER_LEFT">
+        <Label fx:id="name" styleClass="identity-name"/>
+        <Label fx:id="subtitle" styleClass="muted"/>
+    </VBox>
+</HBox>

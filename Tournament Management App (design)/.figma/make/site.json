@@ -1,0 +1,10 @@
+{
+  "description": "Create and manage tournaments effortlessly with player and team management, match pages, and real-time results, perfect for esports enthusiasts.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<HBox alignment="CENTER_LEFT" spacing="18" styleClass="match-row" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="8"><Label fx:id="badge" styleClass="eyebrow"/><Label fx:id="time" styleClass="muted"/></VBox>
+    <VBox spacing="7" HBox.hgrow="ALWAYS"><Label fx:id="teams" styleClass="identity-name" wrapText="true"/><Label fx:id="meta" styleClass="muted" wrapText="true"/></VBox>
+</HBox>

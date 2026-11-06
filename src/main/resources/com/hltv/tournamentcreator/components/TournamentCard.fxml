@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<HBox styleClass="tournament-card" minWidth="330" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox fx:id="art" styleClass="tournament-art" alignment="CENTER" spacing="14" minWidth="100">
+        <StackPane fx:id="icon"/>
+        <Label fx:id="state" styleClass="card-state"/>
+    </VBox>
+    <VBox spacing="10" styleClass="tournament-card-body" HBox.hgrow="ALWAYS">
+        <Label fx:id="name" styleClass="card-title" wrapText="true"/>
+        <Label fx:id="summary" styleClass="muted" wrapText="true"/>
+        <Label fx:id="meta" styleClass="muted" wrapText="true"/>
+        <Button fx:id="open" text="Manage tournament  →" styleClass="text-button"/>
+    </VBox>
+</HBox>

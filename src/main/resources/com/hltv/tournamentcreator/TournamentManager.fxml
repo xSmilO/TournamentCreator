@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="managerRoot" id="tournament-manager" styleClass="detail-dialog, tournament-manager" stylesheets="@css/creator.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="6" HBox.hgrow="ALWAYS"><Label text="TOURNAMENT CONTROL" styleClass="eyebrow, accent"/><Label fx:id="title" styleClass="creator-title" wrapText="true"/></VBox>
+        <Button text="Close" onAction="#close" styleClass="secondary"/>
+    </HBox>
+    <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" minHeight="0">
+        <tabs>
+            <Tab text="Teams">
+                <VBox spacing="14" styleClass="tournament-tab">
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Registered teams and seeding" styleClass="panel-title" HBox.hgrow="ALWAYS"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="addTeams" text="＋  Add teams" onAction="#showTeamPicker" styleClass="primary"/></HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Team limit" styleClass="input-label"/><TextField fx:id="teamLimitField" promptText="2–256" prefWidth="90" maxWidth="90"/><Button fx:id="saveLimit" text="Save limit" styleClass="secondary" onAction="#updateTeamLimit"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="capacityLabel" styleClass="muted"/></HBox>
+                    <TableView fx:id="participantsTable" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                        <placeholder><Label text="No registered teams. Click Add teams to register your participants." wrapText="true"/></placeholder>
+                        <columns><TableColumn fx:id="participantSeed" text="SEED" minWidth="90" maxWidth="120"/><TableColumn fx:id="participantName" text="TEAM" minWidth="250"/></columns>
+                    </TableView>
+                    <Label text="Register every team before generating the bracket. Teams are placed by seed; late registrations are blocked after generation." styleClass="muted" wrapText="true"/>
+                </VBox>
+            </Tab>
+            <Tab fx:id="matchesTab" text="Matches">
+                <VBox spacing="14" styleClass="tournament-tab">
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Matches and map results" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="addMatch" text="＋  Add match" onAction="#showMatchCreator" styleClass="secondary"/><Button fx:id="editScores" text="Enter / edit scores" onAction="#editSelectedScores" styleClass="primary"/></HBox>
+                    <TableView fx:id="matchesTable" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                        <placeholder><Label text="No matches yet. Generate a bracket or add a match manually."/></placeholder>
+                        <columns><TableColumn fx:id="matchOpponents" text="MATCH" minWidth="260"/><TableColumn fx:id="matchScore" text="MAPS" minWidth="80"/><TableColumn fx:id="matchStatus" text="STATUS" minWidth="110"/><TableColumn fx:id="matchRound" text="ROUND" minWidth="110"/><TableColumn fx:id="matchStart" text="START" minWidth="130"/></columns>
+                    </TableView>
+                    <Label text="Series scores count completed map wins. Round scores (for example 13–10) are entered separately for each map." styleClass="muted" wrapText="true"/>
+                </VBox>
+            </Tab>
+            <Tab text="Bracket">
+                <VBox spacing="14" styleClass="tournament-tab" minHeight="0">
+                    <HBox spacing="12" alignment="CENTER_LEFT"><Label text="Single elimination" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><ComboBox fx:id="bracketFormat" value="Bo3" styleClass="compact-combo"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Bo1"/><String fx:value="Bo3"/><String fx:value="Bo5"/></FXCollections></items></ComboBox><Button fx:id="generate" text="Generate bracket" onAction="#generateBracket" styleClass="primary"/></HBox>
+                    <ScrollPane fitToHeight="false" fitToWidth="false" VBox.vgrow="ALWAYS" minHeight="0"><HBox fx:id="bracketColumns"/></ScrollPane>
+                    <Label fx:id="champion" styleClass="bracket-caption" wrapText="true"/>
+                </VBox>
+            </Tab>
+        </tabs>
+    </TabPane>
+    <HBox alignment="CENTER_LEFT" spacing="12"><Label fx:id="managerStatus" styleClass="muted" wrapText="true" HBox.hgrow="ALWAYS"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="refresh" text="↻  Refresh" onAction="#refresh" styleClass="secondary"/></HBox>
+</VBox>

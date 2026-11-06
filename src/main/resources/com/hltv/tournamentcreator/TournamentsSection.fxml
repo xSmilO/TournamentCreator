@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox styleClass="directory" stylesheets="@css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hltv.tournamentcreator.controllers.TournamentSectionController">
+    <HBox styleClass="page-heading" spacing="20" alignment="CENTER_LEFT">
+        <VBox spacing="7" HBox.hgrow="ALWAYS">
+            <Label text="WINIT COMPETITION DATABASE" styleClass="eyebrow, accent"/>
+            <Label text="Tournaments." styleClass="page-title"/>
+            <Label text="Manage every tournament in your competition network." styleClass="page-description"/>
+        </VBox>
+        <Button id="add-btn" text="＋  Add tournament" styleClass="primary" onAction="#createEntry"/>
+    </HBox>
+    <VBox styleClass="panel" minHeight="0" VBox.vgrow="ALWAYS">
+        <HBox styleClass="directory-toolbar" alignment="CENTER_LEFT" spacing="12">
+            <TextField fx:id="search" promptText="Search tournaments..." styleClass="directory-search" HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="filter"/>
+            <Button fx:id="refresh" text="↻  Refresh" styleClass="secondary" onAction="#loadData"/>
+        </HBox>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                <VBox>
+                    <FlowPane fx:id="cards" hgap="14" vgap="14" styleClass="tournament-grid"/>
+                    <Label fx:id="emptyCards" text="No tournaments to display. Create one to get started." styleClass="empty-copy" visible="false" managed="false"/>
+                </VBox>
+            </ScrollPane>
+        <Label fx:id="status" styleClass="directory-status" wrapText="true"/>
+    </VBox>
+</VBox>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox styleClass="detail-dialog" spacing="16" maxWidth="580" maxHeight="520" stylesheets="@css/app.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Label fx:id="caption" styleClass="eyebrow, accent"/>
+    <Label fx:id="heading" styleClass="page-title"/>
+    <ListView fx:id="list" VBox.vgrow="ALWAYS"><placeholder><Label fx:id="placeholder" text="Loading…"/></placeholder></ListView>
+    <Button fx:id="close" text="Close" styleClass="secondary"/>
+</VBox>

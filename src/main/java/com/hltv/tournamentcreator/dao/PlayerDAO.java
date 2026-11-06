@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class PlayerDAO {
-    public List<Player> getAllPlayers() {
+    public List<Player> getAllPlayers() throws SQLException {
         List<Player> players = new ArrayList<>();
 
         String sql = """
@@ -32,7 +32,7 @@ public class PlayerDAO {
 
             while (rs.next()) {
                 // 1. Build the Country object
-                Country country = new Country(
+                Country country = rs.getObject("country_id") == null ? null : new Country(
                         rs.getInt("country_id"),
                         rs.getString("c_name"),
                         rs.getString("c_code")
@@ -44,7 +44,7 @@ public class PlayerDAO {
                     team = new Team(
                             rs.getObject("team_id", java.util.UUID.class),
                             rs.getString("t_name"),
-                            rs.getInt("t_world_ranking")
+                            rs.getObject("t_world_ranking", Integer.class)
                     );
                 }
 
@@ -64,13 +64,11 @@ public class PlayerDAO {
 
                 players.add(player);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return players;
     }
 
-    public Player createPlayer(String nickname, String firstName, String lastName, Country country, java.time.LocalDate dateOfBirth) {
+    public Player createPlayer(String nickname, String firstName, String lastName, Country country, java.time.LocalDate dateOfBirth) throws SQLException {
         String sql = """
                     INSERT INTO winit.players (nickname, first_name, last_name, country_id, date_of_birth) 
                     VALUES (?, ?, ?, ?, ?) 
@@ -104,10 +102,7 @@ public class PlayerDAO {
                     );
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("Failed to insert new player: " + nickname);
-            e.printStackTrace();
         }
-        return null;
+        throw new SQLException("The database did not return the created player.");
     }
 }

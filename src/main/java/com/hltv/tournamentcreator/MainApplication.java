@@ -15,7 +15,9 @@ public class MainApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Tournament Creator");
         stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setMinWidth(1180);
+        stage.setMinHeight(760);
+        stage.setResizable(true);
         stage.show();
     }
 }

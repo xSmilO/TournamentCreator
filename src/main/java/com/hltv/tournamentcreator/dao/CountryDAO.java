@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CountryDAO {
 
-    public List<Country> getAllCountries() {
+    public List<Country> getAllCountries() throws SQLException {
         List<Country> countries = new ArrayList<>();
         String sql = "SELECT * FROM winit.countries ORDER BY name ASC";
 
@@ -26,8 +26,6 @@ public class CountryDAO {
                         rs.getString("code")
                 ));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return countries;
     }

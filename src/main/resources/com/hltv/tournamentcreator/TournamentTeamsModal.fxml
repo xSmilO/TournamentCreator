@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="teamPickerRoot" id="tournament-manager" styleClass="detail-dialog, tournament-manager" stylesheets="@css/creator.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="6"><Label text="TOURNAMENT REGISTRATION" styleClass="eyebrow, accent"/><Label text="Add teams" styleClass="creator-title"/></VBox>
+    <TextField fx:id="teamSearch" promptText="Search available teams…"/>
+    <TableView fx:id="eligibleTable" VBox.vgrow="ALWAYS">
+        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+        <placeholder><Label text="No eligible teams. All existing teams may already be registered." wrapText="true"/></placeholder>
+        <columns><TableColumn fx:id="eligibleName" text="TEAM" minWidth="250"/><TableColumn fx:id="eligibleRanking" text="WORLD RANKING" minWidth="150"/></columns>
+    </TableView>
+    <Label fx:id="teamPickerStatus" styleClass="muted" wrapText="true"/>
+    <HBox alignment="CENTER_RIGHT" spacing="12"><Button text="Cancel" onAction="#backToManager" styleClass="secondary"/><Button fx:id="register" id="register-tournament-teams" text="Register selected teams" onAction="#registerTeams" styleClass="primary"/></HBox>
+</VBox>

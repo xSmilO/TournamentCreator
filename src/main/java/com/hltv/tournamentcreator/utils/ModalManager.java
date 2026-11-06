@@ -9,6 +9,7 @@ public class ModalManager {
 
     private static ModalManager instance;
     private final Pane modalOverlay;
+    private Runnable onSaved;
 
     // Private constructor for Singleton pattern
     private ModalManager(Pane modalOverlay) {
@@ -29,6 +30,11 @@ public class ModalManager {
     }
 
     public void showModal(String fxmlPath) {
+        showModal(fxmlPath, null);
+    }
+
+    public void showModal(String fxmlPath, Runnable onSaved) {
+        this.onSaved = onSaved;
         try {
             URL resource = getClass().getResource(fxmlPath);
             if (resource == null) {
@@ -46,15 +52,28 @@ public class ModalManager {
             modalOverlay.toFront();
 
         } catch (Exception e) {
-            System.err.println("Failed to load modal: " + fxmlPath);
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to load modal: " + fxmlPath, e);
         }
     }
 
     public void hideModal() {
+        onSaved = null;
         modalOverlay.getChildren().clear();
         modalOverlay.setVisible(false);
 
         modalOverlay.toBack();
+    }
+
+    public void showModal(Node content) {
+        onSaved = null;
+        modalOverlay.getChildren().setAll(content);
+        modalOverlay.setVisible(true);
+        modalOverlay.toFront();
+    }
+
+    public void saved() {
+        Runnable callback = onSaved;
+        hideModal();
+        if (callback != null) callback.run();
     }
 }
