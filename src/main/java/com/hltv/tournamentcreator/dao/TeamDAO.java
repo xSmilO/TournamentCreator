@@ -43,7 +43,7 @@ public class TeamDAO {
             List<Player> players = new ArrayList<>();
             while (rs.next()) {
                 players.add(new Player(rs.getObject("player_id", UUID.class), rs.getString("nickname"),
-                        null, null, null, null, null, 0, 0, null));
+                        null, null, null, null, null, null, null, null));
             }
             return players;
         }
@@ -106,6 +106,23 @@ public class TeamDAO {
             stmt.setObject(3, playerId);
             if (stmt.executeUpdate() != 1) throw new SQLException(
                     "This player is no longer available. Refresh the player list and choose again.", "P0001");
+        }
+    }
+
+    public void updatePlayerRole(UUID teamId, UUID playerId, String previousRole, String role) throws SQLException {
+        java.util.Objects.requireNonNull(teamId, "Team is required");
+        java.util.Objects.requireNonNull(playerId, "Player is required");
+        String validRole = CreatorValidation.text(role, "Role", 50, true);
+        try (Connection conn = connections.open(); PreparedStatement stmt = conn.prepareStatement("""
+                UPDATE winit.players SET team_role = ?
+                WHERE player_id = ? AND team_id = ? AND team_role IS NOT DISTINCT FROM ?
+                """)) {
+            stmt.setString(1, validRole);
+            stmt.setObject(2, playerId);
+            stmt.setObject(3, teamId);
+            stmt.setString(4, previousRole);
+            if (stmt.executeUpdate() != 1) throw new SQLException(
+                    "This player's team or role changed. Return to the roster, refresh it, and try again.", "P0001");
         }
     }
 

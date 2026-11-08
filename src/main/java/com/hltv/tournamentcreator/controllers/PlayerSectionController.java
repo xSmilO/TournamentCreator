@@ -13,8 +13,10 @@ public class PlayerSectionController extends DatabaseSectionController<Player> {
         identityColumn("PLAYER", Player::nickname, p -> value(p.firstName()) + " " + value(p.lastName()), "user");
         column("COUNTRY", p -> p.country() == null ? "—" : p.country().name());
         column("TEAM", p -> p.team() == null ? "Free agent" : p.team().name());
-        column("HLTV RATING", p -> String.format(java.util.Locale.ROOT, "%.2f", p.hltvRating()));
-        column("HEADSHOTS", p -> String.format(java.util.Locale.ROOT, "%.1f%%", p.headshotPercentage()));
+        column("HLTV RATING", p -> p.hltvRating() == null ? "—" : String.format(java.util.Locale.ROOT, "%.2f", p.hltvRating()));
+        column("HEADSHOTS", p -> p.headshotPercentage() == null ? "—" : String.format(java.util.Locale.ROOT, "%.1f%%", p.headshotPercentage()));
+        actionColumn("Edit", player -> new OrganizerEditor(() -> { ModalManager.getInstance().hideModal(); loadData(); },
+                () -> ModalManager.getInstance().hideModal()).player(player));
     }
     private String value(String value) { return value == null ? "" : value; }
     @Override protected List<String> filterOptions() { return List.of("All players", "On a team", "Free agents"); }

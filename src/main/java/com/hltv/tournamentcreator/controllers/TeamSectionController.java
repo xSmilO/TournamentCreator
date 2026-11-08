@@ -13,6 +13,8 @@ public class TeamSectionController extends DatabaseSectionController<Team> {
         identityColumn("TEAM", Team::name, t -> t.worldRanking() == null ? "Unranked" : "World rank #" + t.worldRanking(), "users");
         column("WORLD RANKING", Team::worldRanking);
         column("PLAYERS", Team::playerCount);
+        actionColumn("Edit", team -> new OrganizerEditor(() -> { ModalManager.getInstance().hideModal(); loadData(); },
+                () -> ModalManager.getInstance().hideModal()).team(team));
         actionColumn("View roster  →", team -> new TeamRosterDialog(team, dao, this::loadData).showRoster());
         actionColumn("＋  Add player", team -> new TeamRosterDialog(team, dao, this::loadData).showPlayerPicker());
     }

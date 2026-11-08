@@ -26,6 +26,7 @@
                     <TableColumn text="TEAM" minWidth="90" reorderable="false"/>
                     <TableColumn text="HLTV RATING" minWidth="90" reorderable="false"/>
                     <TableColumn text="HEADSHOTS" minWidth="90" reorderable="false"/>
+                    <TableColumn text="" userData="Edit" minWidth="70" maxWidth="85" reorderable="false"/>
                 </columns>
             </TableView>
         <Label fx:id="status" styleClass="directory-status" wrapText="true"/>

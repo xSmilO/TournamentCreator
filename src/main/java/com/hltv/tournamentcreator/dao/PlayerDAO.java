@@ -12,6 +12,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class PlayerDAO {
+    private final ConnectionSource connections;
+    public PlayerDAO() { this(DatabaseManager::getConnection); }
+    PlayerDAO(ConnectionSource connections) { this.connections = connections; }
+    private static Double numeric(ResultSet rs, String column) throws SQLException {
+        var value = rs.getBigDecimal(column);
+        return value == null ? null : value.doubleValue();
+    }
     public List<Player> getAllPlayers() throws SQLException {
         List<Player> players = new ArrayList<>();
 
@@ -26,7 +33,7 @@ public class PlayerDAO {
                     LEFT JOIN winit.countries c ON p.country_id = c.country_id
                 """;
 
-        try (Connection conn = DatabaseManager.getConnection();
+        try (Connection conn = connections.open();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -57,8 +64,8 @@ public class PlayerDAO {
                         country,
                         rs.getObject("date_of_birth", java.time.LocalDate.class),
                         team,
-                        rs.getDouble("headshot_percentage"),
-                        rs.getDouble("hltv_rating"),
+                        numeric(rs, "headshot_percentage"),
+                        numeric(rs, "hltv_rating"),
                         rs.getObject("created_at", java.time.LocalDateTime.class)
                 );
 
@@ -76,7 +83,7 @@ public class PlayerDAO {
                 """;
 
         // 1. Open the Connection AND the PreparedStatement together
-        try (Connection conn = DatabaseManager.getConnection();
+        try (Connection conn = connections.open();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, nickname);
@@ -96,8 +103,8 @@ public class PlayerDAO {
                             country,      // We already have the full Country object from the method arguments!
                             dateOfBirth,
                             null,         // Team is intentionally set to null (Free Agent)
-                            rs.getDouble("headshot_percentage"), // 0.0 by default from DB
-                            rs.getDouble("hltv_rating"),         // 0.0 by default from DB
+                            numeric(rs, "headshot_percentage"),
+                            numeric(rs, "hltv_rating"),
                             rs.getObject("created_at", java.time.LocalDateTime.class)
                     );
                 }

@@ -100,3 +100,37 @@ Group mechanics additionally require **`db/migrations/003_tournament_groups.sql`
 ## Editing the views
 
 Layouts are in `TournamentManager.fxml`, `TournamentTeamsModal.fxml`, `MatchCreatorModal.fxml`, and `MatchScoresModal.fxml`. Repeated map rows, group panels/match rows, and bracket cards/rounds/connectors are FXML templates in `components/`. Styling is in `css/creator.css`; data and actions are in `TournamentManagerController`, `TournamentDAO`, `MatchDAO`, and `GroupStageDAO`.
+
+## Organizer editing
+
+Milestone 1 uses the existing schema and migrations 001–004; no additional SQL is required.
+
+- **Players → Edit:** change nickname, personal details, country, or birth date.
+  Optional details can be cleared. Unknown rating/headshot statistics display as
+  “—”; a real stored zero remains zero.
+- **Teams → Edit:** change the name or manually managed world ranking. Clear the
+  ranking to mark the team unranked.
+- **Teams → View roster:** select a player to change their role, transfer them to
+  another team with a new role, or release them to free agency. Release requires
+  confirmation in its form and clears the team and role together. Transfers update
+  team and role atomically. Historical rosters are not recorded yet.
+- **Tournament card → Edit tournament:** update name, tier, dates, prize pool,
+  location, and format description. Dates and format lock once the start date is
+  reached, the end date has passed, groups/a bracket exist, or a match is Live or
+  Completed. Other metadata remains editable. The format description does not
+  regenerate fixtures or change existing match formats. There is no separate
+  tournament description column in the current schema.
+- **Manage tournament → Teams → select team → Edit seed:** enter a positive unused
+  seed. To swap seeds, temporarily move one team to an unused number. Seeds lock
+  after a draw or started match. Registration and seeding use the same tournament
+  lock to prevent concurrent changes from assigning duplicate seeds.
+- **Manage tournament → Matches → select match → Schedule:** set the local date
+  and 24-hour time for any Upcoming manual/group/bracket fixture, including TBD
+  opponents. Clear both fields to remove a schedule. Live and Completed fixtures
+  cannot be rescheduled through this editor.
+
+Each form shows a saved confirmation; **Done** returns to the refreshed originating
+view. **Cancel** before saving discards changes. If another edit changed the original
+values, the save is rejected with a refresh instruction instead of overwriting it.
+Scores, completed results, tournament capacity, and unrelated profile fields are
+not changed by these edits.

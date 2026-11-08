@@ -42,6 +42,11 @@
 /* FXML view sizing and shared form spacing. */
 .creator-dialog { -fx-spacing: 14; -fx-pref-width: 560; -fx-max-width: 560; -fx-max-height: 660; }
 .form-field { -fx-spacing: 5; }
+.organizer-team, .organizer-seed { -fx-max-height: 380; }
+.organizer-release { -fx-max-height: 300; }
+.organizer-transfer, .organizer-schedule { -fx-max-height: 460; }
+#creator-form.organizer-editor .date-picker { -fx-padding: 0; -fx-min-height: 39; -fx-pref-height: 39; -fx-max-height: 39; }
+#creator-form.organizer-editor .date-picker > .text-field { -fx-min-height: 37; -fx-pref-height: 37; -fx-max-height: 37; }
 .roster-dialog { -fx-spacing: 18; -fx-max-width: 850; -fx-max-height: 640; -fx-min-height: 0; }
 .role-dialog { -fx-spacing: 18; -fx-max-width: 560; -fx-max-height: 340; -fx-min-height: 0; }
 

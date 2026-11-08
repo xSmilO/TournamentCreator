@@ -183,6 +183,7 @@ class MatchPersistenceTest {
     static final class Jdbc {
         boolean committed,rolledBack,closed;
         String failUpdate;
+        int updateCount = 1;
         Function<String,List<Map<String,Object>>> query=sql -> List.of();
         final List<Update> updates=new ArrayList<>();
         Connection connection() {
@@ -205,7 +206,7 @@ class MatchPersistenceTest {
                     case "executeQuery": return result(query.apply(sql));
                     case "executeUpdate":
                         if(failUpdate!=null && sql.startsWith(failUpdate)) throw new SQLException("Simulated failure");
-                        updates.add(new Update(sql,new HashMap<>(parameters))); return 1;
+                        updates.add(new Update(sql,new HashMap<>(parameters))); return updateCount;
                     case "close": return null;
                     default: throw new AssertionError(method.getName());
                 }
@@ -219,6 +220,7 @@ class MatchPersistenceTest {
                 Object value=rows.get(index[0]).get(args[0].toString());
                 return switch(method.getName()) {
                     case "getObject" -> value;
+                    case "getBigDecimal" -> value;
                     case "getString" -> value==null ? null : value.toString();
                     case "getInt" -> value==null ? 0 : ((Number)value).intValue();
                     case "getBoolean" -> Boolean.TRUE.equals(value);

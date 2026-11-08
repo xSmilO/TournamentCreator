@@ -28,12 +28,13 @@ public final class TeamRosterDialog {
     private final Runnable onChanged;
     private final ObservableList<RosterPlayer> available = FXCollections.observableArrayList();
     private RosterPlayer selectedPlayer;
+    private boolean editingRole;
     @FXML private VBox rosterRoot, pickerRoot, roleRoot;
-    @FXML private Label rosterTitle, rosterStatus, pickerCaption, pickerStatus, pickerPlaceholder, roleTitle, rolePrompt, roleStatus;
+    @FXML private Label rosterTitle, rosterStatus, pickerCaption, pickerStatus, pickerPlaceholder, roleTitle, rolePrompt, roleStatus, roleCaption;
     @FXML private TableView<RosterPlayer> rosterTable, playerTable;
     @FXML private TableColumn<RosterPlayer, String> nicknameColumn, nameColumn, countryColumn, ratingColumn, roleColumn;
     @FXML private TextField search;
-    @FXML private Button choose, pickerRefresh;
+    @FXML private Button choose, pickerRefresh, editRole, confirmRoleButton, roleBack, transferPlayer, releasePlayer;
     @FXML private ComboBox<String> role;
 
     public TeamRosterDialog(Team team, TeamDAO dao, Runnable onChanged) {
@@ -44,6 +45,9 @@ public final class TeamRosterDialog {
         var view = FxmlViews.load("TeamRosterModal.fxml", this);
         bindColumns(true);
         rosterTitle.setText(team.name());
+        editRole.disableProperty().bind(rosterTable.getSelectionModel().selectedItemProperty().isNull());
+        transferPlayer.disableProperty().bind(rosterTable.getSelectionModel().selectedItemProperty().isNull());
+        releasePlayer.disableProperty().bind(rosterTable.getSelectionModel().selectedItemProperty().isNull());
         ModalManager.getInstance().showModal(view.root());
         TableView<RosterPlayer> currentTable = rosterTable;
         Label currentStatus = rosterStatus;
@@ -106,12 +110,29 @@ public final class TeamRosterDialog {
     @FXML private void chooseSelectedPlayer() { showRolePrompt(playerTable.getSelectionModel().getSelectedItem()); }
 
     private void showRolePrompt(RosterPlayer player) {
+        showRolePrompt(player, false);
+    }
+
+    @FXML private void editSelectedRole() {
+        showRolePrompt(rosterTable.getSelectionModel().getSelectedItem(), true);
+    }
+
+    private void showRolePrompt(RosterPlayer player, boolean edit) {
         if (player == null) return;
         selectedPlayer = player;
+        editingRole = edit;
         var view = FxmlViews.load("PlayerRoleModal.fxml", this);
         roleTitle.setText(player.nickname());
-        rolePrompt.setText("What role will " + player.nickname() + " play in " + team.name() + "?");
+        roleCaption.setText(edit ? "EDIT TEAM ROLE" : "ASSIGN ROLE");
+        rolePrompt.setText(edit ? "Update " + player.nickname() + "'s role in " + team.name() + "."
+                : "What role will " + player.nickname() + " play in " + team.name() + "?");
+        confirmRoleButton.setText(edit ? "Save role  →" : "Add to team  →");
+        roleBack.setText(edit ? "Back to roster" : "Back to players");
         ModalManager.getInstance().showModal(view.root());
+        if (edit) {
+            role.setValue(player.role());
+            role.getEditor().setText(player.role() == null ? "" : player.role());
+        }
         role.requestFocus();
     }
     @FXML private void confirmRole() {
@@ -119,19 +140,33 @@ public final class TeamRosterDialog {
         try { selectedRole = CreatorValidation.text(role.getEditor().getText(), "Role", 50, true); }
         catch (IllegalArgumentException error) { roleStatus.setText(error.getMessage()); return; }
         RosterPlayer player = selectedPlayer;
+        boolean edit = editingRole;
         roleRoot.setDisable(true);
-        roleStatus.setText("Adding player…");
-        BackgroundTask.run(() -> { dao.assignPlayer(team.teamId(), player.playerId(), selectedRole); return null; }, ignored -> {
+        roleStatus.setText(edit ? "Saving role…" : "Adding player…");
+        BackgroundTask.run(() -> {
+            if (edit) dao.updatePlayerRole(team.teamId(), player.playerId(), player.role(), selectedRole);
+            else dao.assignPlayer(team.teamId(), player.playerId(), selectedRole);
+            return null;
+        }, ignored -> {
             onChanged.run(); showRoster();
         }, error -> {
             roleRoot.setDisable(false);
             roleStatus.setText(errorMessage(error));
         });
     }
-    @FXML private void backToPlayers() { ModalManager.getInstance().showModal(pickerRoot); }
+    @FXML private void cancelRole() {
+        if (editingRole) backToRoster();
+        else ModalManager.getInstance().showModal(pickerRoot);
+    }
     @FXML private void backToRoster() {
         if (rosterRoot == null) showRoster();
         else ModalManager.getInstance().showModal(rosterRoot);
+    }
+    @FXML private void transferPlayer() { movePlayer(false); }
+    @FXML private void releasePlayer() { movePlayer(true); }
+    private void movePlayer(boolean release) {
+        var player = rosterTable.getSelectionModel().getSelectedItem();
+        if (player != null) new OrganizerEditor(() -> { onChanged.run(); showRoster(); }, this::showRoster).move(team, player, release);
     }
     @FXML private void close() { ModalManager.getInstance().hideModal(); }
 

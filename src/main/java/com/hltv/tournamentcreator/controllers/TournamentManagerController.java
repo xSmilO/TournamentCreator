@@ -41,7 +41,7 @@ public final class TournamentManagerController {
     private record ScoreData(List<MapResult> maps, List<String> names) {}
     private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups, boolean registrationOpen) {}
     private final javafx.beans.property.BooleanProperty registrationOpen = new javafx.beans.property.SimpleBooleanProperty(false);
-    @FXML private Button removeTeam;
+    @FXML private Button removeTeam, editSeed, editSchedule;
 
     @FXML private VBox managerRoot, teamPickerRoot, matchFormRoot, scoreRoot, mapRows;
     @FXML private Label title, managerStatus, champion, teamPickerStatus, matchFormStatus, scoreTitle, scoreStatus, seriesSummary, capacityLabel;
@@ -84,10 +84,22 @@ public final class TournamentManagerController {
         bind(matchRound, m -> text(m.round()));
         bind(matchStart, m -> m.start() == null ? "Unscheduled" : m.start().format(DateTimeFormatter.ofPattern("dd MMM HH:mm", Locale.ENGLISH)));
         editScores.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
+        editSeed.disableProperty().bind(participantsTable.getSelectionModel().selectedItemProperty().isNull());
+        editSchedule.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
         removeTeam.disableProperty().bind(registrationOpen.not().or(participantsTable.getSelectionModel().selectedItemProperty().isNull()));
         ModalManager.getInstance().showModal(view.root());
         refresh();
     }
+
+    @FXML private void editSeed() {
+        var team = participantsTable.getSelectionModel().getSelectedItem();
+        if (team != null) new OrganizerEditor(this::returnFromEdit, this::backToManager).seed(tournament.tournamentId(), team);
+    }
+    @FXML private void editSchedule() {
+        var match = matchesTable.getSelectionModel().getSelectedItem();
+        if (match != null) new OrganizerEditor(this::returnFromEdit, this::backToManager).schedule(match);
+    }
+    private void returnFromEdit() { backToManager(); refresh(); onChanged.run(); }
 
     @FXML private void refresh() {
         registrationOpen.set(false);

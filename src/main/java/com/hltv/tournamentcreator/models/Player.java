@@ -2,7 +2,6 @@ package com.hltv.tournamentcreator.models;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 public record Player(
@@ -13,8 +12,8 @@ public record Player(
         Country country,
         LocalDate dateOfBirth,
         Team team,
-        double headshotPercentage,
-        double hltvRating,
+        Double headshotPercentage,
+        Double hltvRating,
         LocalDateTime createdAt
 ) {
 }

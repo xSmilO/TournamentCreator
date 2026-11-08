@@ -13,7 +13,7 @@
         <tabs>
             <Tab text="Teams">
                 <VBox spacing="14" styleClass="tournament-tab">
-                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Registered teams and seeding" styleClass="panel-title" HBox.hgrow="ALWAYS"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="removeTeam" text="Remove selected team" onAction="#removeTeam" styleClass="secondary"/><Button fx:id="addTeams" text="＋  Add teams" onAction="#showTeamPicker" styleClass="primary"/></HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Registered teams and seeding" styleClass="panel-title" HBox.hgrow="ALWAYS"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="editSeed" text="Edit seed" onAction="#editSeed" styleClass="secondary"/><Button fx:id="removeTeam" text="Remove selected team" onAction="#removeTeam" styleClass="secondary"/><Button fx:id="addTeams" text="＋  Add teams" onAction="#showTeamPicker" styleClass="primary"/></HBox>
                     <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Team limit" styleClass="input-label"/><TextField fx:id="teamLimitField" promptText="2–256" prefWidth="90" maxWidth="90"/><Button fx:id="saveLimit" text="Save limit" styleClass="secondary" onAction="#updateTeamLimit"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="capacityLabel" styleClass="muted"/></HBox>
                     <TableView fx:id="participantsTable" VBox.vgrow="ALWAYS">
                         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
@@ -25,7 +25,7 @@
             </Tab>
             <Tab fx:id="matchesTab" text="Matches">
                 <VBox spacing="14" styleClass="tournament-tab">
-                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Matches and map results" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="addMatch" text="＋  Add match" onAction="#showMatchCreator" styleClass="secondary"/><Button fx:id="editScores" text="Enter / edit scores" onAction="#editSelectedScores" styleClass="primary"/></HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Matches and map results" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="editSchedule" text="Schedule" onAction="#editSchedule" styleClass="secondary"/><Button fx:id="addMatch" text="＋  Add match" onAction="#showMatchCreator" styleClass="secondary"/><Button fx:id="editScores" text="Enter / edit scores" onAction="#editSelectedScores" styleClass="primary"/></HBox>
                     <TableView fx:id="matchesTable" VBox.vgrow="ALWAYS">
                         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
                         <placeholder><Label text="No matches yet. Generate a bracket or add a match manually."/></placeholder>

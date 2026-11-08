@@ -111,6 +111,47 @@ class CreatorPersistenceTest {
         assertFalse(jdbc.closed);
     }
 
+    @Test void roleEditOnlyUpdatesRoleForTheExpectedTeamAndPreviousRole() throws Exception {
+        JdbcStub jdbc = new JdbcStub();
+        UUID team = UUID.randomUUID(), player = UUID.randomUUID();
+        new TeamDAO(jdbc::connection).updatePlayerRole(team, player, "Rifler", "  AWPer  ");
+        assertEquals(1, jdbc.statements.size());
+        StatementStub stmt = jdbc.statements.get(0);
+        assertTrue(stmt.sql.contains("SET team_role = ?"));
+        assertFalse(stmt.sql.contains("SET team_id"));
+        assertTrue(stmt.sql.contains("AND team_id = ? AND team_role IS NOT DISTINCT FROM ?"));
+        assertEquals("AWPer", stmt.parameters.get(1));
+        assertEquals(player, stmt.parameters.get(2));
+        assertEquals(team, stmt.parameters.get(3));
+        assertEquals("Rifler", stmt.parameters.get(4));
+        assertTrue(jdbc.closed);
+    }
+
+    @Test void roleEditCanSetAnUnassignedRole() throws Exception {
+        JdbcStub jdbc = new JdbcStub();
+        new TeamDAO(jdbc::connection).updatePlayerRole(UUID.randomUUID(), UUID.randomUUID(), null, "Support");
+        assertNull(jdbc.statements.get(0).parameters.get(4));
+        assertEquals("Support", jdbc.statements.get(0).parameters.get(1));
+    }
+
+    @Test void roleEditRejectsStaleRoleOrChangedTeam() {
+        JdbcStub jdbc = new JdbcStub();
+        jdbc.playerAvailable = false;
+        SQLException error = assertThrows(SQLException.class, () -> new TeamDAO(jdbc::connection)
+                .updatePlayerRole(UUID.randomUUID(), UUID.randomUUID(), "Rifler", "IGL"));
+        assertEquals("P0001", error.getSQLState());
+        assertTrue(jdbc.closed);
+    }
+
+    @Test void roleEditValidatesBeforeOpeningConnection() {
+        JdbcStub jdbc = new JdbcStub();
+        TeamDAO dao = new TeamDAO(jdbc::connection);
+        for (String value : new String[]{" ", "x".repeat(51)})
+            assertThrows(IllegalArgumentException.class, () -> dao.updatePlayerRole(UUID.randomUUID(), UUID.randomUUID(), "Rifler", value));
+        assertTrue(jdbc.statements.isEmpty());
+        assertFalse(jdbc.closed);
+    }
+
     @Test void availablePlayersConvertPostgresNumericRatingsAndPreserveNull() throws Exception {
         JdbcStub jdbc = new JdbcStub();
         jdbc.ratings = Arrays.asList(new BigDecimal("1.21"), null, BigDecimal.ZERO);

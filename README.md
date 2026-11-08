@@ -67,6 +67,7 @@ the actual PostgreSQL schema, SQL execution or concurrent database sessions.
 - `src/test/java`: validation, competition logic and persistence tests.
 - `db/migrations`: incremental PostgreSQL migrations.
 - [Tournament workflows](docs/tournaments.md): registration, groups, brackets and scoring.
+- [Product roadmap](docs/roadmap.md): current completeness, priorities, and proposed database work.
 - [JavaFX view guide](src/main/resources/com/hltv/tournamentcreator/README.md).
 - `Tournament Management App (design)`: separate React/Vite UI prototype with
   sample data; the JavaFX application does not depend on it.

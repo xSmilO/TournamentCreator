@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" id="creator-form" styleClass="creator-dialog, organizer-editor" stylesheets="@css/creator.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="ORGANIZER TOOLS" styleClass="eyebrow, accent"/>
+    <Label fx:id="title" styleClass="creator-title" wrapText="true"/>
+    <Label fx:id="hint" styleClass="muted" wrapText="true" minHeight="-Infinity" maxWidth="Infinity"/>
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" minHeight="0">
+        <VBox spacing="12">
+            <VBox fx:id="namePane" styleClass="form-field"><Label fx:id="nameLabel" text="Name" styleClass="input-label"/><TextField fx:id="name"/></VBox>
+            <VBox fx:id="playerPane" spacing="12">
+                <VBox styleClass="form-field"><Label text="First name" styleClass="input-label"/><TextField fx:id="first"/></VBox>
+                <VBox styleClass="form-field"><Label text="Surname" styleClass="input-label"/><TextField fx:id="last"/></VBox>
+                <VBox styleClass="form-field"><Label text="Country (optional)" styleClass="input-label"/><ComboBox fx:id="country" minWidth="0" prefWidth="0" maxWidth="Infinity"/><Button text="Clear country" onAction="#clearCountry" styleClass="text-button"/></VBox>
+                <VBox styleClass="form-field"><Label text="Birth date (optional)" styleClass="input-label"/><DatePicker fx:id="birth" maxWidth="Infinity"/></VBox>
+            </VBox>
+            <VBox fx:id="rankingPane" styleClass="form-field"><Label text="World ranking (optional)" styleClass="input-label"/><TextField fx:id="ranking"/></VBox>
+            <VBox fx:id="tournamentPane" spacing="12">
+                <VBox styleClass="form-field"><Label text="Tier" styleClass="input-label"/><ComboBox fx:id="tier" maxWidth="Infinity"/></VBox>
+                <HBox spacing="12"><VBox styleClass="form-field" HBox.hgrow="ALWAYS"><Label text="Start date" styleClass="input-label"/><DatePicker fx:id="start"/></VBox><VBox styleClass="form-field" HBox.hgrow="ALWAYS"><Label text="End date" styleClass="input-label"/><DatePicker fx:id="end"/></VBox></HBox>
+                <VBox styleClass="form-field"><Label text="Prize pool" styleClass="input-label"/><TextField fx:id="prize"/></VBox>
+                <VBox styleClass="form-field"><Label text="Location" styleClass="input-label"/><TextField fx:id="venue"/></VBox>
+                <VBox styleClass="form-field"><Label text="Format description" styleClass="input-label"/><TextField fx:id="format"/></VBox>
+            </VBox>
+            <VBox fx:id="transferPane" spacing="12">
+                <VBox styleClass="form-field"><Label text="Destination team" styleClass="input-label"/><ComboBox fx:id="destination" minWidth="0" prefWidth="0" maxWidth="Infinity"/></VBox>
+                <VBox styleClass="form-field"><Label text="Role in destination team" styleClass="input-label"/><ComboBox fx:id="role" editable="true" maxWidth="Infinity"/></VBox>
+            </VBox>
+            <VBox fx:id="seedPane" styleClass="form-field"><Label text="Seed (positive, unused number)" styleClass="input-label"/><TextField fx:id="seed"/></VBox>
+            <VBox fx:id="schedulePane" spacing="12">
+                <VBox styleClass="form-field"><Label text="Match date (local time)" styleClass="input-label"/><DatePicker fx:id="matchDate"/></VBox>
+                <VBox styleClass="form-field"><Label text="Time (HH:mm)" styleClass="input-label"/><TextField fx:id="time" promptText="18:30"/></VBox>
+                <Button text="Clear schedule" onAction="#clearSchedule" styleClass="text-button"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+    <Label fx:id="status" styleClass="creator-status" wrapText="true" minHeight="-Infinity" maxWidth="Infinity"/>
+    <HBox alignment="CENTER_RIGHT" spacing="12"><Button fx:id="cancel" text="Cancel" onAction="#cancel" styleClass="secondary"/><Button fx:id="save" text="Save changes" onAction="#save" styleClass="primary"/></HBox>
+</VBox>

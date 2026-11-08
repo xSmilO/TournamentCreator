@@ -20,6 +20,9 @@
     <HBox spacing="12" alignment="CENTER_RIGHT">
         <Button text="↻  Refresh" styleClass="secondary" onAction="#showRoster"/>
         <Button text="Close" styleClass="secondary" onAction="#close"/>
+        <Button fx:id="editRole" text="Change role" styleClass="secondary" onAction="#editSelectedRole"/>
+        <Button fx:id="transferPlayer" text="Transfer" styleClass="secondary" onAction="#transferPlayer"/>
+        <Button fx:id="releasePlayer" text="Release" styleClass="secondary" onAction="#releasePlayer"/>
         <Button text="＋  Add player" styleClass="primary" onAction="#showPlayerPicker"/>
     </HBox>
 </VBox>

@@ -11,5 +11,6 @@
         <Label fx:id="summary" styleClass="muted" wrapText="true"/>
         <Label fx:id="meta" styleClass="muted" wrapText="true"/>
         <Button fx:id="open" text="Manage tournament  →" styleClass="text-button"/>
+        <Button fx:id="edit" text="Edit tournament" styleClass="text-button"/>
     </VBox>
 </HBox>

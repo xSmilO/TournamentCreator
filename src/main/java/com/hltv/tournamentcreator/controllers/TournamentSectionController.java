@@ -42,6 +42,8 @@ public class TournamentSectionController extends DatabaseSectionController<Tourn
                 + (t.location() == null ? "" : "  ·  " + t.location())
                 + (t.prizePool() == null ? "" : "  ·  Prize pool " + t.prizePool().toPlainString()));
         view.<Button>get("open").setOnAction(event -> new TournamentManagerController(t, dao, new MatchDAO(), this::loadData).show());
+        view.<Button>get("edit").setOnAction(event -> new OrganizerEditor(() -> { ModalManager.getInstance().hideModal(); loadData(); },
+                () -> ModalManager.getInstance().hideModal()).tournament(t));
         return view.root();
     }
     @Override protected void configureColumns() { /* Tournament results use the FXML card template. */ }
