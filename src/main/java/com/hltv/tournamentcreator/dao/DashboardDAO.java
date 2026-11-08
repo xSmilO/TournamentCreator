@@ -41,7 +41,16 @@ public class DashboardDAO {
                         rs.getString("team2"), rs.getString("stage"), rs.getString("match_format"),
                         rs.getString("status"), rs.getObject("start_time", LocalDateTime.class)));
             }
-            List<Team> topTeams = new TeamDAO().getAllTeams().stream().filter(t -> t.worldRanking() != null).limit(5).toList();
+            List<Team> topTeams = new ArrayList<>();
+            try (PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT t.team_id, t.name, t.world_ranking,
+                           (SELECT count(*) FROM winit.players p WHERE p.team_id = t.team_id) AS player_count
+                    FROM winit.teams t WHERE t.world_ranking IS NOT NULL
+                    ORDER BY t.world_ranking, t.name, t.team_id LIMIT 5
+                    """); ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) topTeams.add(new Team(rs.getObject("team_id", java.util.UUID.class),
+                        rs.getString("name"), rs.getObject("world_ranking", Integer.class), rs.getInt("player_count")));
+            }
             return new Snapshot(tournaments, teams, players, played, scheduled, matches, topTeams);
         }
     }

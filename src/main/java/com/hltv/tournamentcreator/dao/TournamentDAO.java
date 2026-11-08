@@ -142,7 +142,7 @@ public class TournamentDAO {
                     }
                 }
                 int seed;
-                MatchDAO.ensureNoBracket(conn, tournamentId);
+                ensureRegistrationOpen(conn, tournamentId);
                 try (PreparedStatement stmt = conn.prepareStatement("SELECT COALESCE(MAX(seed_number), 0) AS next_seed, COUNT(*) AS participant_count FROM winit.tournament_participants WHERE tournament_id = ?")) {
                     stmt.setObject(1, tournamentId);
                     try (ResultSet rs = stmt.executeQuery()) {
@@ -171,6 +171,66 @@ public class TournamentDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) throw new SQLException("This tournament no longer exists.", "P0001");
                 return rs.getInt("team_limit");
+            }
+        }
+    }
+
+    public boolean isRegistrationOpen(UUID tournamentId) throws SQLException {
+        try (Connection conn = connections.open()) { return registrationOpen(conn, tournamentId); }
+    }
+
+    private static boolean registrationOpen(Connection conn, UUID id) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT start_date, end_date FROM winit.tournaments WHERE tournament_id=?
+                """)) {
+            stmt.setObject(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) throw new SQLException("This tournament no longer exists.", "P0001");
+                var today = java.time.LocalDate.now();
+                var start = rs.getObject("start_date", java.time.LocalDate.class);
+                var end = rs.getObject("end_date", java.time.LocalDate.class);
+                if (start != null && !start.isAfter(today) || end != null && end.isBefore(today)) return false;
+            }
+        }
+        try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT 1 FROM winit.matches WHERE tournament_id=?
+                AND (stage IN ('Single elimination', 'Group stage') OR status IN ('Live', 'Completed'))
+                UNION ALL SELECT 1 FROM winit.tournament_groups WHERE tournament_id=? LIMIT 1
+                """)) {
+            stmt.setObject(1, id); stmt.setObject(2, id);
+            try (ResultSet rs = stmt.executeQuery()) { return !rs.next(); }
+        }
+    }
+
+    private static void ensureRegistrationOpen(Connection conn, UUID id) throws SQLException {
+        if (!registrationOpen(conn, id)) throw new SQLException(
+                "Team changes are closed: the tournament has started or groups/bracket have been generated.", "P0001");
+    }
+
+    public void unregisterTeam(UUID tournamentId, UUID teamId) throws SQLException {
+        java.util.Objects.requireNonNull(teamId, "Select a team.");
+        try (Connection conn = connections.open()) {
+            conn.setAutoCommit(false);
+            try {
+                MatchDAO.lockTournament(conn, tournamentId);
+                ensureRegistrationOpen(conn, tournamentId);
+                try (PreparedStatement stmt = conn.prepareStatement("""
+                        SELECT 1 FROM winit.matches WHERE tournament_id=? AND (team1_id=? OR team2_id=?) LIMIT 1
+                        """)) {
+                    stmt.setObject(1, tournamentId); stmt.setObject(2, teamId); stmt.setObject(3, teamId);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) throw new SQLException("This team already has scheduled matches and cannot be removed.", "P0001");
+                    }
+                }
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "DELETE FROM winit.tournament_participants WHERE tournament_id=? AND team_id=?")) {
+                    stmt.setObject(1, tournamentId); stmt.setObject(2, teamId);
+                    if (stmt.executeUpdate() != 1) throw new SQLException("This team is no longer registered. Refresh the list.", "P0001");
+                }
+                conn.commit();
+            } catch (SQLException | RuntimeException error) {
+                try { conn.rollback(); } catch (SQLException rollback) { error.addSuppressed(rollback); }
+                throw error;
             }
         }
     }

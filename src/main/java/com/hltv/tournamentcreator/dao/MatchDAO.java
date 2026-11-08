@@ -45,6 +45,16 @@ public class MatchDAO {
         try (Connection conn = connections.open()) { return getMaps(conn, matchId); }
     }
 
+    public List<String> getMapNames() throws SQLException {
+        try (Connection conn = connections.open();
+             PreparedStatement stmt = conn.prepareStatement("SELECT name FROM winit.maps ORDER BY name");
+             ResultSet rs = stmt.executeQuery()) {
+            List<String> names = new ArrayList<>();
+            while (rs.next()) names.add(rs.getString("name"));
+            return names;
+        }
+    }
+
     private List<MapResult> getMaps(Connection conn, UUID matchId) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM winit.games WHERE match_id=? ORDER BY map_order NULLS LAST, game_id")) {
             stmt.setObject(1, matchId);
@@ -86,6 +96,10 @@ public class MatchDAO {
     }
 
     public void generateBracket(UUID tournamentId, String format) throws SQLException {
+        generateBracket(tournamentId, format, false);
+    }
+
+    public void generateBracket(UUID tournamentId, String format, boolean randomDraw) throws SQLException {
         MatchResults.mapLimit(format);
         transaction(conn -> {
             lockTournament(conn, tournamentId);
@@ -100,6 +114,7 @@ public class MatchDAO {
                 stmt.setObject(1, tournamentId);
                 try (ResultSet rs = stmt.executeQuery()) { while (rs.next()) teams.add(rs.getObject("team_id", UUID.class)); }
             }
+            if (randomDraw) Collections.shuffle(teams);
             List<BracketMatch> bracket = SingleElimination.generate(teams);
             try (PreparedStatement stmt = conn.prepareStatement("SELECT team_limit FROM winit.tournaments WHERE tournament_id=?")) {
                 stmt.setObject(1, tournamentId);
@@ -172,8 +187,9 @@ public class MatchDAO {
                 }
             }
             try (PreparedStatement stmt = conn.prepareStatement("""
-                    INSERT INTO winit.games AS existing (game_id,match_id,map_name,map_order,team1_score,team2_score,status,winner_id)
-                    VALUES (?,?,?,?,?,?,?,?) ON CONFLICT (game_id) DO UPDATE SET map_name=EXCLUDED.map_name,
+                    INSERT INTO winit.games AS existing (game_id,match_id,map_name,map_order,team1_score,team2_score,status,winner_id,map_id)
+                    SELECT ?,?,?,?,?,?,?,?,map_id FROM winit.maps WHERE name=?
+                    ON CONFLICT (game_id) DO UPDATE SET map_name=EXCLUDED.map_name,map_id=EXCLUDED.map_id,
                     map_order=EXCLUDED.map_order,team1_score=EXCLUDED.team1_score,team2_score=EXCLUDED.team2_score,
                     status=EXCLUDED.status,winner_id=EXCLUDED.winner_id WHERE existing.match_id=EXCLUDED.match_id
                     """)) {
@@ -181,7 +197,8 @@ public class MatchDAO {
                     UUID winner = "Completed".equals(map.status()) ? (map.team1Score() > map.team2Score() ? match.team1Id() : match.team2Id()) : null;
                     stmt.setObject(1, map.gameId()); stmt.setObject(2, match.matchId()); stmt.setString(3, map.mapName()); stmt.setInt(4, map.order());
                     stmt.setInt(5, map.team1Score()); stmt.setInt(6, map.team2Score()); stmt.setString(7, map.status()); stmt.setObject(8, winner);
-                    if (stmt.executeUpdate() != 1) throw new SQLException("A map belongs to another match.", "P0001");
+                    stmt.setString(9, map.mapName());
+                    if (stmt.executeUpdate() != 1) throw new SQLException("The map is missing from the catalogue or belongs to another match. Reopen the score editor.", "P0001");
                 }
             }
             try (PreparedStatement stmt = conn.prepareStatement("UPDATE winit.matches SET status=?,winner_id=? WHERE match_id=?")) {

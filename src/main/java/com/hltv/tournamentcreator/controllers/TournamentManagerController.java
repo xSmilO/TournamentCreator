@@ -38,7 +38,10 @@ public final class TournamentManagerController {
     private List<MapResult> originalMaps = List.of();
     private final List<ScoreRow> scoreRows = new ArrayList<>();
     private record ScoreRow(UUID id, int order, FxmlViews.Fragment view) {}
-    private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups) {}
+    private record ScoreData(List<MapResult> maps, List<String> names) {}
+    private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups, boolean registrationOpen) {}
+    private final javafx.beans.property.BooleanProperty registrationOpen = new javafx.beans.property.SimpleBooleanProperty(false);
+    @FXML private Button removeTeam;
 
     @FXML private VBox managerRoot, teamPickerRoot, matchFormRoot, scoreRoot, mapRows;
     @FXML private Label title, managerStatus, champion, teamPickerStatus, matchFormStatus, scoreTitle, scoreStatus, seriesSummary, capacityLabel;
@@ -51,6 +54,7 @@ public final class TournamentManagerController {
     @FXML private TextField teamSearch, timeField, stageField, roundField, teamLimitField;
     @FXML private Button refresh, addTeams, addMatch, generate, register, editScores, createMatch, saveLimit;
     @FXML private ComboBox<String> bracketFormat, matchFormat;
+    @FXML private CheckBox randomDraw;
     @FXML private ComboBox<TournamentParticipant> firstTeam, secondTeam;
     @FXML private DatePicker matchDate;
     @FXML private TabPane tabs;
@@ -80,16 +84,18 @@ public final class TournamentManagerController {
         bind(matchRound, m -> text(m.round()));
         bind(matchStart, m -> m.start() == null ? "Unscheduled" : m.start().format(DateTimeFormatter.ofPattern("dd MMM HH:mm", Locale.ENGLISH)));
         editScores.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
+        removeTeam.disableProperty().bind(registrationOpen.not().or(participantsTable.getSelectionModel().selectedItemProperty().isNull()));
         ModalManager.getInstance().showModal(view.root());
         refresh();
     }
 
     @FXML private void refresh() {
+        registrationOpen.set(false);
         refresh.setDisable(true); addTeams.setDisable(true); addMatch.setDisable(true); generate.setDisable(true); saveLimit.setDisable(true);
         drawGroups.setDisable(true); qualifyGroups.setDisable(true);
         managerStatus.setText("Loading tournament…");
         BackgroundTask.run(() -> new Snapshot(tournaments.getRegisteredTeams(tournament.tournamentId()), matches.getMatches(tournament.tournamentId()),
-                tournaments.getTeamLimit(tournament.tournamentId()), groups.getGroups(tournament.tournamentId())), data -> {
+                tournaments.getTeamLimit(tournament.tournamentId()), groups.getGroups(tournament.tournamentId()), tournaments.isRegistrationOpen(tournament.tournamentId())), data -> {
             participants = data.teams(); currentMatches = data.matches();
             currentGroups = data.groups();
             capacity = data.limit();
@@ -98,7 +104,8 @@ public final class TournamentManagerController {
             participantsTable.getItems().setAll(participants);
             matchesTable.getItems().setAll(currentMatches);
             boolean bracket = currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()));
-            addTeams.setDisable(bracket || !currentGroups.isEmpty() || participants.size() >= capacity);
+            registrationOpen.set(data.registrationOpen());
+            addTeams.setDisable(!data.registrationOpen() || participants.size() >= capacity);
             addMatch.setDisable(bracket || !currentGroups.isEmpty() || participants.size() < 2);
             generate.setDisable(participants.size() < 2 || !currentMatches.isEmpty() || !currentGroups.isEmpty());
             bracketFormat.setDisable(!currentMatches.isEmpty());
@@ -110,8 +117,7 @@ public final class TournamentManagerController {
             renderGroups(bracket);
             renderBracket();
             managerStatus.setText(participants.size() + " / " + capacity + " teams · " + currentMatches.size() + " matches"
-                    + (bracket ? " · Bracket generated; registration is closed" : !currentGroups.isEmpty()
-                    ? " · Group stage drawn; registration is closed" : " · Register teams before drawing groups or generating a bracket"));
+                    + (data.registrationOpen() ? " · Team changes open" : " · Team changes closed: tournament started or competition generated"));
             refresh.setDisable(false);
             saveLimit.setDisable(false);
         }, error -> { managerStatus.setText(error(error)); refresh.setDisable(false); });
@@ -197,6 +203,16 @@ public final class TournamentManagerController {
         loadEligible();
     }
 
+    @FXML private void removeTeam() {
+        TournamentParticipant selected = participantsTable.getSelectionModel().getSelectedItem();
+        if (selected == null || !registrationOpen.get()) return;
+        managerRoot.setDisable(true);
+        managerStatus.setText("Removing team from tournament…");
+        BackgroundTask.run(() -> { tournaments.unregisterTeam(tournament.tournamentId(), selected.teamId()); return null; }, ignored -> {
+            managerRoot.setDisable(false); onChanged.run(); refresh();
+        }, error -> { managerRoot.setDisable(false); managerStatus.setText(error(error)); });
+    }
+
     @FXML private void loadEligible() {
         teamPickerStatus.setText("Loading teams…");
         BackgroundTask.run(() -> tournaments.getEligibleTeams(tournament.tournamentId()), teams -> {
@@ -235,9 +251,10 @@ public final class TournamentManagerController {
 
     @FXML private void generateBracket() {
         generate.setDisable(true); addTeams.setDisable(true); addMatch.setDisable(true); refresh.setDisable(true);
-        managerStatus.setText("Generating seeded single elimination bracket…");
+        boolean random = randomDraw.isSelected();
+        managerStatus.setText(random ? "Drawing random pairs and generating bracket…" : "Generating seeded single elimination bracket…");
         String format = bracketFormat.getValue();
-        BackgroundTask.run(() -> { matches.generateBracket(tournament.tournamentId(), format); return null; }, ignored -> {
+        BackgroundTask.run(() -> { matches.generateBracket(tournament.tournamentId(), format, random); return null; }, ignored -> {
             refresh();
         }, error -> { managerStatus.setText(error(error)); refresh.setDisable(false); });
     }
@@ -296,7 +313,8 @@ public final class TournamentManagerController {
         scoreRoot.setDisable(true);
         scoreStatus.setText("Loading saved map scores…");
         ModalManager.getInstance().showModal(view.root());
-        BackgroundTask.run(() -> matches.getMaps(match.matchId()), maps -> {
+        BackgroundTask.run(() -> new ScoreData(matches.getMaps(match.matchId()), matches.getMapNames()), data -> {
+            List<MapResult> maps = data.maps();
             originalMaps = maps;
             Set<Integer> orders = new HashSet<>();
             for (MapResult map : maps) if (map.order() < 1 || map.order() > limit || !orders.add(map.order())) {
@@ -307,17 +325,19 @@ public final class TournamentManagerController {
                 final int order = i;
                 MapResult map = maps.stream().filter(m -> m.order() == order).findFirst().orElse(null);
                 var row = FxmlViews.load("components/MapScoreRow.fxml");
+                row.<ComboBox<String>>get("mapName").getItems().setAll(data.names());
                 row.<Label>get("number").setText("MAP " + i);
                 row.<Label>get("firstTeamName").setText(match.team1Name());
                 row.<Label>get("secondTeamName").setText(match.team2Name());
                 if (map != null) {
-                    row.<TextField>get("mapName").setText(map.mapName());
+                    row.<ComboBox<String>>get("mapName").setValue(map.mapName());
                     row.<TextField>get("firstScore").setText(Integer.toString(map.team1Score()));
                     row.<TextField>get("secondScore").setText(Integer.toString(map.team2Score()));
                     row.<ComboBox<String>>get("mapStatus").setValue(map.status() == null ? "Upcoming" : map.status());
                 }
                 scoreRows.add(new ScoreRow(map == null ? UUID.randomUUID() : map.gameId(), i, row));
-                for (String id : List.of("mapName", "firstScore", "secondScore"))
+                row.<ComboBox<String>>get("mapName").valueProperty().addListener((obs, old, value) -> updateSummary());
+                for (String id : List.of("firstScore", "secondScore"))
                     row.<TextField>get(id).textProperty().addListener((obs, old, value) -> updateSummary());
                 row.<ComboBox<String>>get("mapStatus").valueProperty().addListener((obs, old, value) -> updateSummary());
                 mapRows.getChildren().add(row.root());
@@ -332,7 +352,7 @@ public final class TournamentManagerController {
         List<MapResult> results = new ArrayList<>();
         for (ScoreRow row : scoreRows) {
             try {
-                results.add(new MapResult(row.id(), row.view().<TextField>get("mapName").getText(), row.order(),
+                results.add(new MapResult(row.id(), row.view().<ComboBox<String>>get("mapName").getValue(), row.order(),
                         Integer.parseInt(row.view().<TextField>get("firstScore").getText().trim()),
                         Integer.parseInt(row.view().<TextField>get("secondScore").getText().trim()), row.view().<ComboBox<String>>get("mapStatus").getValue()));
             } catch (NumberFormatException error) { throw new IllegalArgumentException("Map " + row.order() + " scores must be whole numbers."); }

@@ -20,7 +20,7 @@ The team limit is a maximum, not a requirement to fill every slot: generating a 
 2. Choose **Bo1**, **Bo3**, or **Bo5**. This format applies to the bracket's matches.
 3. Choose **Generate bracket**.
 
-Teams are ordered by seed. The bracket uses the next power of two and gives byes to the highest seeds where necessary. Bye winners are advanced immediately. The bracket and its links are saved in PostgreSQL and restored when you reopen the tournament.
+Random draw is selected by default and shuffles teams before generating the bracket, including allocation of byes. Uncheck Random draw to order teams by seed. In seeded mode, The bracket uses the next power of two and gives byes to the highest seeds where necessary. Bye winners are advanced immediately. The bracket and its links are saved in PostgreSQL and restored when you reopen the tournament.
 
 Generate is available for tournaments with at least two participants and no existing matches. Existing matches are preserved; generation does not replace them. Single elimination supports up to 256 participants. To use groups before playoffs instead, follow the group-stage workflow below.
 
@@ -45,6 +45,24 @@ Standings use **3 points per match win**, **0 per loss**, and completed matches 
 `Q` marks the current top two. Before all group matches finish, those positions are provisional. Incomplete, duplicate, or inconsistent group results cannot be used to generate playoffs. Groups and playoff generation are transactional and cannot be repeated over existing competition matches.
 
 ## Enter map scores
+
+Apply `db/migrations/004_maps.sql` before using the score editor. It creates
+`winit.maps(map_id, name)` and links each played map through `games.map_id`.
+The relationship is `matches.match_id → games.match_id`, then
+`games.map_id → maps.map_id`, allowing Bo3/Bo5 series to use multiple maps.
+Existing map names are imported and linked without changing results. The editor
+offers a map dropdown. Additional names can be added to `winit.maps`.
+
+## Changing tournament participants
+
+In **Teams**, select a registered team and choose **Remove selected team** to
+unregister it; the team itself remains in the team directory. Adding and removing
+teams close on the start date, after the end date, once a match is Live/Completed,
+or once groups/a bracket exist. These checks also run inside the write transaction,
+so an old open window cannot bypass the restriction. A team referenced by a manual
+scheduled match cannot be removed. Remaining teams keep their seeds.
+
+## Score editor
 
 Click a playable bracket match, or select it in **Matches** and choose **Enter / edit scores**.
 

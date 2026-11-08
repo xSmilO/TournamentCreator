@@ -4,6 +4,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox styleClass="map-score-row" spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <HBox spacing="12" alignment="CENTER_LEFT"><Label fx:id="number" styleClass="eyebrow, accent"/><TextField fx:id="mapName" promptText="Map name, for example Mirage" HBox.hgrow="ALWAYS"/><ComboBox fx:id="mapStatus" value="Upcoming" prefWidth="135"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Upcoming"/><String fx:value="Live"/><String fx:value="Completed"/></FXCollections></items></ComboBox></HBox>
+    <HBox spacing="12" alignment="CENTER_LEFT"><Label fx:id="number" styleClass="eyebrow, accent"/><ComboBox fx:id="mapName" promptText="Select map" maxWidth="Infinity" HBox.hgrow="ALWAYS"/><ComboBox fx:id="mapStatus" value="Upcoming" prefWidth="135"><items><FXCollections fx:factory="observableArrayList"><String fx:value="Upcoming"/><String fx:value="Live"/><String fx:value="Completed"/></FXCollections></items></ComboBox></HBox>
     <HBox spacing="14" alignment="CENTER_LEFT"><Label fx:id="firstTeamName" styleClass="muted"/><TextField fx:id="firstScore" text="0" prefWidth="65" maxWidth="65"/><Label text=":" styleClass="muted"/><TextField fx:id="secondScore" text="0" prefWidth="65" maxWidth="65"/><Label fx:id="secondTeamName" styleClass="muted"/></HBox>
 </VBox>
