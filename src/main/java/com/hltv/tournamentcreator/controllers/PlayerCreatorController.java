@@ -11,13 +11,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 
 public class PlayerCreatorController {
     @FXML private ComboBox<Country> countryBox;
-    @FXML private TextField nicknameField, surnameField, firstNameField, dateOfBirthField;
+    @FXML private TextField nicknameField, surnameField, firstNameField;
+    @FXML private DatePicker dateOfBirthPicker;
     @FXML private Button addBtn, cancelBtn;
     @FXML private Label statusLabel;
     @FXML private VBox playerCreatorContainer;
@@ -44,11 +42,13 @@ public class PlayerCreatorController {
             String nickname = CreatorValidation.text(nicknameField.getText(), "Nickname", 50, true);
             String firstName = CreatorValidation.text(firstNameField.getText(), "First name", 50, true);
             String surname = CreatorValidation.text(surnameField.getText(), "Surname", 50, true);
+            String birthText = dateOfBirthPicker.getEditor().getText().trim();
+            if (birthText.isEmpty()) throw new IllegalArgumentException("Please select a date of birth.");
             LocalDate birth;
             try {
-                birth = LocalDate.parse(dateOfBirthField.getText().trim(),
-                        DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT));
-            } catch (DateTimeParseException ex) { throw new IllegalArgumentException("Enter a valid date of birth as DD-MM-YYYY."); }
+                birth = dateOfBirthPicker.getConverter().fromString(birthText);
+            } catch (RuntimeException ex) { throw new IllegalArgumentException("Enter a valid date of birth or choose one from the calendar."); }
+            if (birth == null) throw new IllegalArgumentException("Please select a date of birth.");
             if (birth.isAfter(LocalDate.now())) throw new IllegalArgumentException("Date of birth cannot be in the future.");
             Country country = countryBox.getValue();
             if (country == null) throw new IllegalArgumentException("Please select a country.");

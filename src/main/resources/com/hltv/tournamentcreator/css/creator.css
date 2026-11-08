@@ -35,6 +35,8 @@
 #creator-form .date-picker > .text-field { -fx-border-width: 0; }
 #creator-form .date-picker > .arrow-button { -fx-background-color: #20262f; }
 #creator-form .date-picker > .arrow-button .arrow { -fx-background-color: #969da9; }
+#creator-form .birth-date-picker { -fx-padding: 0; -fx-min-height: 39; -fx-pref-height: 39; -fx-max-height: 39; }
+#creator-form .birth-date-picker > .text-field { -fx-min-height: 37; -fx-pref-height: 37; -fx-max-height: 37; }
 #roster-dialog .creator-status, #role-prompt .creator-status { -fx-text-fill: #ffb166; -fx-font-size: 11; }
 #role-prompt .combo-box { -fx-min-height: 40; }
 #role-prompt .combo-box .text-field { -fx-border-width: 0; }

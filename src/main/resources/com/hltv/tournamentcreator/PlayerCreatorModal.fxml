@@ -9,7 +9,7 @@
  <HBox spacing="14">
   <VBox spacing="6" minWidth="0" prefWidth="0" HBox.hgrow="ALWAYS">
    <Label text="Date of birth *" styleClass="input-label"/>
-   <TextField fx:id="dateOfBirthField" minWidth="0" promptText="DD-MM-YYYY"/>
+   <DatePicker fx:id="dateOfBirthPicker" minWidth="0" prefWidth="0" maxWidth="Infinity" styleClass="birth-date-picker" promptText="Select date"/>
   </VBox>
   <VBox spacing="6" minWidth="0" prefWidth="0" HBox.hgrow="ALWAYS">
    <Label text="Country *" styleClass="input-label"/>
