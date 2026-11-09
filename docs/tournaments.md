@@ -170,3 +170,12 @@ view. **Cancel** before saving discards changes. If another edit changed the ori
 values, the save is rejected with a refresh instruction instead of overwriting it.
 Scores, completed results, tournament capacity, and unrelated profile fields are
 not changed by these edits.
+
+## Delete a tournament
+
+Choose **Delete tournament** on its card, then type its exact name and choose
+**Delete permanently**. This removes the event and its registrations, groups,
+matches, map scores, placements and audit history using existing cascading foreign
+keys. Teams, players and the map catalogue remain. Deletion is available for every
+event state, including archived events. Use Archive instead if you want to retain
+the results. No new database migration is needed.

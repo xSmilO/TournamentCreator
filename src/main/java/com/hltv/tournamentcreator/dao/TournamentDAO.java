@@ -15,6 +15,31 @@ public class TournamentDAO {
     public TournamentDAO() { this(DatabaseManager::getConnection); }
     TournamentDAO(ConnectionSource connections) { this.connections = connections; }
 
+    public void deleteTournament(UUID id, String confirmedName) throws SQLException {
+        if (confirmedName == null || confirmedName.isBlank()) throw new IllegalArgumentException("Type the tournament name to confirm deletion.");
+        try (Connection conn = connections.open()) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement stmt = conn.prepareStatement("SELECT name FROM winit.tournaments WHERE tournament_id=? FOR UPDATE")) {
+                    stmt.setObject(1, id);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (!rs.next() || !confirmedName.equals(rs.getString("name")))
+                            throw new SQLException("The tournament was renamed or removed. Close this dialog and refresh.", "P0001");
+                    }
+                }
+                // Existing foreign keys cascade event-owned records, never teams or players.
+                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM winit.tournaments WHERE tournament_id=?")) {
+                    stmt.setObject(1, id);
+                    if (stmt.executeUpdate() != 1) throw new SQLException("The tournament no longer exists.", "P0001");
+                }
+                conn.commit();
+            } catch (SQLException | RuntimeException error) {
+                try { conn.rollback(); } catch (SQLException rollback) { error.addSuppressed(rollback); }
+                throw error;
+            }
+        }
+    }
+
     public List<Tournament> getAllTournaments() throws SQLException {
         String sql = """
                 SELECT t.*, (SELECT count(*) FROM winit.tournament_participants p

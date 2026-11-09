@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" id="creator-form" styleClass="creator-dialog" maxHeight="-Infinity" stylesheets="@css/creator.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+ <Label text="DELETE TOURNAMENT" styleClass="eyebrow, accent"/>
+ <Label fx:id="title" styleClass="creator-title" wrapText="true"/>
+ <Label text="Permanently deletes this tournament, registrations, groups, bracket, matches, scores, final standings and event history. This cannot be undone. Teams and players remain available." styleClass="muted" wrapText="true" minHeight="-Infinity"/>
+ <Label text="Type the tournament name exactly to confirm:" styleClass="input-label"/>
+ <TextField fx:id="confirmation" promptText="Tournament name"/>
+ <Label fx:id="status" styleClass="creator-status" wrapText="true" minHeight="-Infinity"/>
+ <HBox alignment="CENTER_RIGHT" spacing="12"><Button text="Cancel" styleClass="secondary" onAction="#cancel"/><Button fx:id="delete" text="Delete permanently" styleClass="primary" onAction="#delete"/></HBox>
+</VBox>
