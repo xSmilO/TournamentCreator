@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox id="creator-form" fx:id="playerCreatorContainer" maxWidth="560" maxHeight="580" prefWidth="560" spacing="20" stylesheets="@css/creator.css"
+<VBox id="creator-form" fx:id="playerCreatorContainer" maxWidth="560" maxHeight="-Infinity" prefWidth="560" spacing="16" stylesheets="@css/creator.css"
  xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hltv.tournamentcreator.controllers.PlayerCreatorController">
  <HBox alignment="CENTER_LEFT"><VBox spacing="6" HBox.hgrow="ALWAYS"><Label text="NEW ENTRY" styleClass="eyebrow"/><Label text="Create player" styleClass="creator-title"/></VBox><Button text="✕" onAction="#handleCancel" styleClass="secondary"/></HBox>
  <VBox spacing="6"><Label text="Nickname *" styleClass="input-label"/><TextField fx:id="nicknameField" promptText="Enter player nickname"/></VBox>
