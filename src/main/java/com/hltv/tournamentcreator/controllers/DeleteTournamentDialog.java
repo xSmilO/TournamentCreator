@@ -21,6 +21,8 @@ public final class DeleteTournamentDialog {
     public void show() {
         var view=FxmlViews.load("DeleteTournament.fxml",this);
         title.setText(tournament.name());
+        status.visibleProperty().bind(status.textProperty().isNotEmpty());
+        status.managedProperty().bind(status.visibleProperty());
         delete.disableProperty().bind(confirmation.textProperty().isNotEqualTo(tournament.name()));
         ModalManager.getInstance().showModal(view.root());
     }
