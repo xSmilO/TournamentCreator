@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import java.util.List;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.function.Function;
 
@@ -82,9 +83,15 @@ public abstract class DatabaseSectionController<T> {
         this.<V>findColumn(title).setCellValueFactory(row -> new SimpleObjectProperty<>(value.apply(row.getValue())));
     }
 
+    protected void textColumn(String title, Function<T, String> value) {
+        column(title, value);
+        this.<String>findColumn(title).setComparator(Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    }
+
     protected void identityColumn(String title, Function<T, String> name, Function<T, String> subtitle, String icon) {
         TableColumn<T, T> column = findColumn(title);
         column.setCellValueFactory(row -> new SimpleObjectProperty<>(row.getValue()));
+        column.setComparator(Comparator.comparing(name, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
         column.setCellFactory(col -> new TableCell<>() {
             private final FxmlViews.Fragment cell = FxmlViews.load("components/IdentityCell.fxml");
             private final StackPane mark = cell.get("mark");
