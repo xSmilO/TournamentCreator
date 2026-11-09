@@ -133,7 +133,8 @@ public final class TournamentManagerController {
             matchesTable.getItems().setAll(currentMatches);
             boolean bracket = currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()));
             registrationOpen.set(data.registrationOpen());
-            addTeams.setDisable(!data.registrationOpen() || participants.size() >= capacity);
+            addTeams.setText(!data.registrationOpen() ? "Registration settings" : participants.size() >= capacity ? "Team limit reached" : "＋  Add teams");
+            addTeams.setDisable(data.registrationOpen() && participants.size() >= capacity);
             addMatch.setDisable(bracket || !currentGroups.isEmpty() || participants.size() < 2);
             generate.setDisable(participants.size() < 2 || !currentMatches.isEmpty() || !currentGroups.isEmpty());
             bracketFormat.setDisable(!currentMatches.isEmpty());
@@ -216,6 +217,10 @@ public final class TournamentManagerController {
     }
 
     @FXML private void showTeamPicker() {
+        if (!registrationOpen.get()) {
+            eventControl();
+            return;
+        }
         var view = FxmlViews.load("TournamentTeamsModal.fxml", this);
         bind(eligibleName, Team::name);
         bind(eligibleRanking, t -> t.worldRanking() == null ? "Unranked" : t.worldRanking().toString());
