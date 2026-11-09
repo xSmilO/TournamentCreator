@@ -28,6 +28,10 @@ public class TournamentSectionController extends DatabaseSectionController<Tourn
         var view = FxmlViews.load("components/TournamentCard.fxml");
         view.<VBox>get("art").getStyleClass().add("mark-" + Math.floorMod(t.name().hashCode(), 4));
         view.<StackPane>get("icon").getChildren().setAll(Icons.of("trophy"));
+        view.<Button>get("delete").setGraphic(Icons.of("trash"));
+        view.<Button>get("edit").setGraphic(Icons.of("edit"));
+        view.<Button>get("open").setGraphic(Icons.of("arrow-right"));
+        view.<Button>get("open").setContentDisplay(javafx.scene.control.ContentDisplay.RIGHT);
         view.<Label>get("state").setText(state(t).toUpperCase(Locale.ROOT));
         view.<Label>get("name").setText(t.name());
         String dates = (t.startDate() == null ? "Dates to be confirmed" : t.startDate().toString())

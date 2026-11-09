@@ -14,6 +14,9 @@ public final class Icons {
             case "users" -> "M16 21V19A4 4 0 0 0 12 15H5A4 4 0 0 0 1 19V21 M12.5 7A4 4 0 1 1 4.5 7A4 4 0 1 1 12.5 7 M17 3A4 4 0 0 1 17 11 M23 21V19A4 4 0 0 0 20 15.35";
             case "user" -> "M16 8A4 4 0 1 1 8 8A4 4 0 1 1 16 8 M4 21A8 8 0 0 1 20 21";
             case "chart" -> "M4 19V9 M10 19V5 M16 19V12 M22 19V2";
+            case "trash" -> "M3 6H21 M9 6V3H15V6 M5 6L6 21H18L19 6 M10 10V17 M14 10V17";
+            case "edit" -> "M15 4L20 9 M4 16L16 4A2 2 0 0 1 20 8L8 20L3 21Z";
+            case "arrow-right" -> "M4 12H20 M14 6L20 12L14 18";
             default -> "M13 2L4 14H12L11 22L20 10H12Z";
         });
         return (StackPane) view.root();
