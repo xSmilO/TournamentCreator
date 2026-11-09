@@ -25,8 +25,7 @@
                     <TableColumn text="WORLD RANKING" minWidth="90" reorderable="false"/>
                     <TableColumn text="PLAYERS" minWidth="90" reorderable="false"/>
                     <TableColumn text="" userData="Edit" minWidth="70" maxWidth="85" reorderable="false"/>
-                    <TableColumn text="" userData="View roster  →" minWidth="150" maxWidth="180" reorderable="false"/>
-                    <TableColumn text="" userData="＋  Add player" minWidth="150" maxWidth="180" reorderable="false"/>
+                    <TableColumn text="" userData="View roster  →" styleClass="roster-action-column" minWidth="150" maxWidth="180" reorderable="false" sortable="false"/>
                 </columns>
             </TableView>
         <Label fx:id="status" styleClass="directory-status" wrapText="true"/>

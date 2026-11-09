@@ -16,7 +16,6 @@ public class TeamSectionController extends DatabaseSectionController<Team> {
         actionColumn("Edit", team -> new OrganizerEditor(() -> { ModalManager.getInstance().hideModal(); loadData(); },
                 () -> ModalManager.getInstance().hideModal()).team(team));
         actionColumn("View roster  →", team -> new TeamRosterDialog(team, dao, this::loadData).showRoster());
-        actionColumn("＋  Add player", team -> new TeamRosterDialog(team, dao, this::loadData).showPlayerPicker());
     }
     @Override protected List<String> filterOptions() { return List.of("All teams", "Ranked", "Unranked"); }
     @Override protected boolean matchesFilter(Team team, String filter) {

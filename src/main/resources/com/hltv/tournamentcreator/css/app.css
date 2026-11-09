@@ -124,3 +124,5 @@
 .toast-error { -fx-background-color: #f44336; }
 .toast-warning { -fx-background-color: #ff9800; }
 .toast-info { -fx-background-color: rgba(40,40,40,.9); }
+
+.table-cell.roster-action-column { -fx-alignment: center-right; }
