@@ -1,3 +1,39 @@
+# Current lifecycle workflow (migration 005)
+
+Apply `db/migrations/005_tournament_lifecycle.sql` manually after 001–004. It
+preserves results and backfills state from actual competition activity, not dates.
+No migration has been run automatically.
+
+1. Create the event; open **Manage tournament → Event control → Open registration**.
+2. Register teams and draw groups/a bracket. Drawing closes registration.
+3. Choose **Start tournament**, then enter scores under Matches or Bracket.
+4. For groups, finish group fixtures and generate playoffs as before.
+5. Choose **Finish tournament** to validate all results and save final standings.
+6. Browse standings/history in Event control; archive completed/cancelled events.
+
+Routine lifecycle actions need no written note. Cancellation, reopening, draw
+reset, completed-score corrections and awarded outcomes require a reason.
+Reopening clears placements until the event is finished again. Reset draw removes
+all fixtures/groups/schedules, retaining registered teams and seeds; it is allowed
+only before starting and before any played or awarded result (byes are allowed).
+
+**Matches → Outcome / reset** supports forfeits and match withdrawals with an
+awarded winner and no fabricated map scores. Group awards earn 3 points, zero map
+wins. A withdrawal here applies to one match, not the entire event. Manual matches
+can be cancelled without a winner; group/bracket fixtures need a winner. Reset a
+result before replacing an awarded outcome or discarding played maps. Later played
+matches block changes to earlier winners; group results lock after playoffs.
+
+Final standings require a generated single-elimination final, including playoffs.
+Semifinal losers share place 3, quarterfinal losers place 5, and so on. Group-stage
+eliminations share the first place below the number of playoff qualifiers.
+Event control shows the latest 100 audited actions, with reasons and before/after
+details. The database retains all audit rows. Routine entry needs no player stats.
+
+**The lifecycle rules above supersede the date-based registration rules in the
+original workflow notes below.** Dates now describe the schedule; explicit state
+controls registration and scoring. No date automatically completes an event.
+
 # Teams, matches, results, and brackets
 
 Open **Tournaments → Manage tournament** on a tournament card.

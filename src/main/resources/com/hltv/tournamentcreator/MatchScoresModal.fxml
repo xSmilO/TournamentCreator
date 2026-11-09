@@ -7,6 +7,6 @@
     <Label text="Enter round scores per map. Mark a finished map Completed. Bo1 needs 1 map win, Bo3 needs 2, and Bo5 needs 3. Leave unplayed maps Upcoming with 0–0." styleClass="muted" wrapText="true"/>
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS"><VBox fx:id="mapRows" spacing="14"/></ScrollPane>
     <Label fx:id="seriesSummary" styleClass="bracket-caption" wrapText="true"/>
-    <Label fx:id="scoreStatus" styleClass="creator-status" wrapText="true"/>
+    <TextField fx:id="correctionReason" promptText="Correction reason (required when changing completed results)"/><Label fx:id="scoreStatus" styleClass="creator-status" wrapText="true"/>
     <HBox alignment="CENTER_RIGHT" spacing="12"><Button text="Cancel" onAction="#backToManager" styleClass="secondary"/><Button id="save-match-scores" text="Save results" onAction="#saveScores" styleClass="primary"/></HBox>
 </VBox>

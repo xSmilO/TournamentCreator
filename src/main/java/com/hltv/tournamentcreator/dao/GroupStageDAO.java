@@ -16,7 +16,7 @@ public class GroupStageDAO {
         try (Connection conn = connections.open()) { return getGroups(conn, tournamentId); }
     }
 
-    private List<TournamentGroup> getGroups(Connection conn, UUID tournamentId) throws SQLException {
+    List<TournamentGroup> getGroups(Connection conn, UUID tournamentId) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement("""
                 SELECT g.group_id, g.name AS group_name, g.group_order, t.team_id, t.name AS team_name, p.seed_number
                 FROM winit.tournament_groups g
@@ -89,7 +89,7 @@ public class GroupStageDAO {
                     }
                 }
             }
-            try (PreparedStatement stmt = conn.prepareStatement("UPDATE winit.tournaments SET format='Groups → Playoffs' WHERE tournament_id=?")) {
+            try (PreparedStatement stmt = conn.prepareStatement("UPDATE winit.tournaments SET format='Groups → Playoffs', lifecycle_state=CASE WHEN lifecycle_state='Registration' THEN 'Draft' ELSE lifecycle_state END WHERE tournament_id=?")) {
                 stmt.setObject(1,tournamentId); stmt.executeUpdate();
             }
         });

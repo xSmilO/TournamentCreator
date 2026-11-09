@@ -22,8 +22,8 @@ class MatchPersistenceTest {
     private Jdbc jdbc(UUID oldWinner,String downstreamStatus,List<MapResult> maps) {
         Jdbc jdbc=new Jdbc();
         jdbc.query=sql -> {
-            if(sql.startsWith("SELECT tournament_id")) return List.of(row("tournament_id",tournament));
-            if(sql.startsWith("SELECT * FROM winit.matches")) return List.of(row("team1_id",a,"team2_id",b,"match_format","Bo1","winner_id",oldWinner,"next_match_id",nextId,"next_match_slot",1));
+            if(sql.startsWith("SELECT tournament_id")) return List.of(row("tournament_id",tournament,"lifecycle_state","In progress"));
+            if(sql.startsWith("SELECT * FROM winit.matches")) return List.of(row("status",oldWinner==null?"Upcoming":"Completed","outcome_type","Played","team1_id",a,"team2_id",b,"match_format","Bo1","winner_id",oldWinner,"next_match_id",nextId,"next_match_slot",1));
             if(sql.startsWith("SELECT * FROM winit.games")) return maps.stream().map(m -> row("game_id",m.gameId(),"map_name",m.mapName(),"map_order",m.order(),"team1_score",m.team1Score(),"team2_score",m.team2Score(),"status",m.status())).toList();
             if(sql.startsWith("SELECT m.*")) return List.of(row("tournament_id",tournament,"status",downstreamStatus,"played",!downstreamStatus.equals("Upcoming"),"winner_id",null,"team1_id",oldWinner));
             throw new AssertionError("Unexpected query: "+sql);
@@ -41,18 +41,18 @@ class MatchPersistenceTest {
         assertEquals("Completed",map.parameters.get(7)); assertEquals(a,map.parameters.get(8));
         assertTrue(map.sql.contains("map_id FROM winit.maps WHERE name=?"));
         assertEquals("Mirage", map.parameters.get(9));
-        Update series=jdbc.updates.get(jdbc.updates.size()-1);
+        Update series=jdbc.updates.stream().filter(u -> u.sql.startsWith("UPDATE winit.matches SET status")).findFirst().orElseThrow();
         assertEquals("Completed",series.parameters.get(1)); assertEquals(a,series.parameters.get(2));
     }
     @Test void blocksWinnerCorrectionAfterNextMatchStarts() {
         MapResult old=result(13,9);
         Jdbc jdbc=jdbc(a,"Live",List.of(old));
-        SQLException error=assertThrows(SQLException.class, () -> new MatchDAO(jdbc::connection).saveScores(match(a),List.of(old),List.of(new MapResult(old.gameId(),"Mirage",1,9,13,"Completed"))));
+        SQLException error=assertThrows(SQLException.class, () -> new MatchDAO(jdbc::connection).saveScores(match(a),List.of(old),List.of(new MapResult(old.gameId(),"Mirage",1,9,13,"Completed")),"Corrected score"));
         assertEquals("P0001",error.getSQLState()); assertTrue(jdbc.rolledBack); assertFalse(jdbc.committed); assertTrue(jdbc.updates.isEmpty());
     }
     @Test void allowsWinnerCorrectionBeforeNextMatchStarts() throws Exception {
         MapResult old=result(13,9); Jdbc jdbc=jdbc(a,"Upcoming",List.of(old));
-        new MatchDAO(jdbc::connection).saveScores(match(a),List.of(old),List.of(new MapResult(old.gameId(),"Mirage",1,9,13,"Completed")));
+        new MatchDAO(jdbc::connection).saveScores(match(a),List.of(old),List.of(new MapResult(old.gameId(),"Mirage",1,9,13,"Completed")),"Corrected score");
         assertEquals(b,jdbc.updates.get(0).parameters.get(1)); assertTrue(jdbc.committed);
     }
     @Test void staleScoreEditorCannotOverwriteNewerResults() {
@@ -68,7 +68,7 @@ class MatchPersistenceTest {
     @Test void registersTeamsWithConsecutiveSeedsAndCommitsTogether() throws Exception {
         Jdbc jdbc=new Jdbc();
         jdbc.query=sql -> sql.startsWith("SELECT tournament_id") ? List.of(row("tournament_id",tournament,"team_limit",6))
-                : sql.startsWith("SELECT start_date") ? List.of(row("start_date", null)) : sql.startsWith("SELECT COALESCE") ? List.of(row("next_seed",4,"participant_count",4)) : List.of();
+                : sql.startsWith("SELECT start_date") ? List.of(row("start_date", null,"lifecycle_state","Registration")) : sql.startsWith("SELECT COALESCE") ? List.of(row("next_seed",4,"participant_count",4)) : List.of();
         new TournamentDAO(jdbc::connection).registerTeams(tournament,List.of(a,b));
         assertTrue(jdbc.committed); assertEquals(2,jdbc.updates.size());
         assertEquals(5,jdbc.updates.get(0).parameters.get(3)); assertEquals(6,jdbc.updates.get(1).parameters.get(3));
@@ -84,8 +84,9 @@ class MatchPersistenceTest {
                 : sql.startsWith("SELECT team_id") ? teams.stream().map(t -> row("team_id",t)).toList()
                 : sql.startsWith("SELECT team_limit") ? List.of(row("team_limit",16)) : List.of();
         new MatchDAO(jdbc::connection).generateBracket(tournament,"Bo3");
-        assertEquals(3,jdbc.updates.size()); Set<Object> inserted=new HashSet<>();
-        for(Update update:jdbc.updates) {
+        var inserts=jdbc.updates.stream().filter(u -> u.sql.startsWith("INSERT INTO winit.matches")).toList();
+        assertEquals(3,inserts.size()); Set<Object> inserted=new HashSet<>();
+        for(Update update:inserts) {
             Object next=update.parameters.get(9);
             if(next!=null) assertTrue(inserted.contains(next));
             inserted.add(update.parameters.get(1));
@@ -109,7 +110,7 @@ class MatchPersistenceTest {
     @Test void rejectsRegistrationBatchThatWouldExceedCapacityWithoutPartialWrites() {
         Jdbc jdbc=new Jdbc();
         jdbc.query=sql -> sql.startsWith("SELECT tournament_id") ? List.of(row("tournament_id",tournament,"team_limit",2))
-                : sql.startsWith("SELECT start_date") ? List.of(row("start_date", null)) : sql.startsWith("SELECT COALESCE") ? List.of(row("next_seed",1,"participant_count",1)) : List.of();
+                : sql.startsWith("SELECT start_date") ? List.of(row("start_date", null,"lifecycle_state","Registration")) : sql.startsWith("SELECT COALESCE") ? List.of(row("next_seed",1,"participant_count",1)) : List.of();
         SQLException error=assertThrows(SQLException.class, () -> new TournamentDAO(jdbc::connection).registerTeams(tournament,List.of(a,b)));
         assertEquals("P0001",error.getSQLState());
         assertTrue(jdbc.rolledBack); assertFalse(jdbc.committed); assertTrue(jdbc.updates.isEmpty());
@@ -117,7 +118,7 @@ class MatchPersistenceTest {
     @Test void rejectsRegistrationWhenLastSlotWasAlreadyClaimed() {
         Jdbc jdbc=new Jdbc();
         jdbc.query=sql -> sql.startsWith("SELECT tournament_id") ? List.of(row("tournament_id",tournament,"team_limit",2))
-                : sql.startsWith("SELECT start_date") ? List.of(row("start_date", null)) : sql.startsWith("SELECT COALESCE") ? List.of(row("next_seed",2,"participant_count",2)) : List.of();
+                : sql.startsWith("SELECT start_date") ? List.of(row("start_date", null,"lifecycle_state","Registration")) : sql.startsWith("SELECT COALESCE") ? List.of(row("next_seed",2,"participant_count",2)) : List.of();
         assertThrows(SQLException.class, () -> new TournamentDAO(jdbc::connection).registerTeams(tournament,List.of(a)));
         assertTrue(jdbc.rolledBack); assertTrue(jdbc.updates.isEmpty());
     }
@@ -147,7 +148,7 @@ class MatchPersistenceTest {
         assertEquals(a, jdbc.updates.get(0).parameters().get(2));
     }
 
-    @Test void startedTournamentRejectsBothAddingAndRemovingTeams() {
+    @Test void inProgressTournamentRejectsBothAddingAndRemovingTeams() {
         for (var date : List.of(java.time.LocalDate.now(), java.time.LocalDate.now().minusDays(1))) {
             Jdbc add = registration(date, false), remove = registration(date, false);
             assertThrows(SQLException.class, () -> new TournamentDAO(add::connection).registerTeams(tournament, List.of(a)));
@@ -173,7 +174,7 @@ class MatchPersistenceTest {
         Jdbc jdbc = new Jdbc();
         jdbc.query = sql -> {
             if (sql.startsWith("SELECT tournament_id")) return List.of(row("tournament_id", tournament, "team_limit", 16));
-            if (sql.startsWith("SELECT start_date")) return List.of(row("start_date", start));
+            if (sql.startsWith("SELECT start_date")) return List.of(row("start_date", start,"lifecycle_state",start!=null && !start.isAfter(java.time.LocalDate.now()) ? "In progress" : "Registration"));
             if (sql.contains("UNION ALL")) return generated ? List.of(row("1", 1)) : List.of();
             if (sql.startsWith("SELECT COALESCE")) return List.of(row("next_seed", 0, "participant_count", 0));
             return List.of();
@@ -218,6 +219,11 @@ class MatchPersistenceTest {
                 if(method.getName().equals("next")) return ++index[0]<rows.size();
                 if(method.getName().equals("close")) return null;
                 Object value=rows.get(index[0]).get(args[0].toString());
+                // Simulate defaults of migration 005 for legacy fixture rows.
+                if(value==null && !rows.get(index[0]).containsKey(args[0].toString())) {
+                    if("lifecycle_state".equals(args[0])) value="Draft";
+                    if("outcome_type".equals(args[0])) value="Played";
+                }
                 return switch(method.getName()) {
                     case "getObject" -> value;
                     case "getBigDecimal" -> value;

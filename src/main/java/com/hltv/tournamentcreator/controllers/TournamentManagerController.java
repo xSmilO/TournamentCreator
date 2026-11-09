@@ -41,7 +41,7 @@ public final class TournamentManagerController {
     private record ScoreData(List<MapResult> maps, List<String> names) {}
     private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups, boolean registrationOpen) {}
     private final javafx.beans.property.BooleanProperty registrationOpen = new javafx.beans.property.SimpleBooleanProperty(false);
-    @FXML private Button removeTeam, editSeed, editSchedule;
+    @FXML private Button removeTeam, editSeed, editSchedule, editOutcome;
 
     @FXML private VBox managerRoot, teamPickerRoot, matchFormRoot, scoreRoot, mapRows;
     @FXML private Label title, managerStatus, champion, teamPickerStatus, matchFormStatus, scoreTitle, scoreStatus, seriesSummary, capacityLabel;
@@ -51,7 +51,7 @@ public final class TournamentManagerController {
     @FXML private TableColumn<TournamentMatch,String> matchOpponents, matchScore, matchStatus, matchRound, matchStart;
     @FXML private TableView<Team> eligibleTable;
     @FXML private TableColumn<Team,String> eligibleName, eligibleRanking;
-    @FXML private TextField teamSearch, timeField, stageField, roundField, teamLimitField;
+    @FXML private TextField teamSearch, timeField, stageField, roundField, teamLimitField, correctionReason;
     @FXML private Button refresh, addTeams, addMatch, generate, register, editScores, createMatch, saveLimit;
     @FXML private ComboBox<String> bracketFormat, matchFormat;
     @FXML private CheckBox randomDraw;
@@ -85,10 +85,26 @@ public final class TournamentManagerController {
         bind(matchStart, m -> m.start() == null ? "Unscheduled" : m.start().format(DateTimeFormatter.ofPattern("dd MMM HH:mm", Locale.ENGLISH)));
         editScores.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
         editSeed.disableProperty().bind(participantsTable.getSelectionModel().selectedItemProperty().isNull());
+        editOutcome.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
         editSchedule.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
         removeTeam.disableProperty().bind(registrationOpen.not().or(participantsTable.getSelectionModel().selectedItemProperty().isNull()));
         ModalManager.getInstance().showModal(view.root());
         refresh();
+    }
+
+    @FXML private void eventControl() {
+        new EventControl(tournament.tournamentId(),new com.hltv.tournamentcreator.dao.LifecycleDAO(),onChanged,this::returnFromEdit).show(tournament.name());
+    }
+    @FXML private void editOutcome() {
+        var match=matchesTable.getSelectionModel().getSelectedItem();
+        if(match==null)return;
+        new MatchOutcomeEditor(match,matches,downstream(match),this::returnFromEdit,this::backToManager).show();
+    }
+    private String downstream(TournamentMatch match) {
+        if(match.nextMatchId()==null)return "No later bracket slot is affected.";
+        return currentMatches.stream().filter(m -> m.matchId().equals(match.nextMatchId())).findFirst()
+            .map(m -> "Affected next match: "+m.round()+" · "+m.opponents()+" ("+m.status()+").")
+            .orElse("The next bracket slot will be updated.");
     }
 
     @FXML private void editSeed() {
@@ -129,7 +145,7 @@ public final class TournamentManagerController {
             renderGroups(bracket);
             renderBracket();
             managerStatus.setText(participants.size() + " / " + capacity + " teams · " + currentMatches.size() + " matches"
-                    + (data.registrationOpen() ? " · Team changes open" : " · Team changes closed: tournament started or competition generated"));
+                    + (data.registrationOpen() ? " · Team changes open" : " · Registration closed — see Event control"));
             refresh.setDisable(false);
             saveLimit.setDisable(false);
         }, error -> { managerStatus.setText(error(error)); refresh.setDisable(false); });
@@ -307,6 +323,10 @@ public final class TournamentManagerController {
 
     private void showScores(TournamentMatch match) {
         if (match == null) return;
+        if (!"Played".equals(match.outcome())) {
+            managerStatus.setText("Use Outcome / reset in Matches to clear a non-played outcome before entering scores."); return;
+        }
+        if (!"Played".equals(match.outcome())) { managerStatus.setText("Use Outcome / reset to clear an awarded, cancelled, or bye outcome before entering scores."); return; }
         if (match.groupId()!=null && currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()))) {
             managerStatus.setText("Group results are locked because playoffs have already been generated."); return;
         }
@@ -321,6 +341,7 @@ public final class TournamentManagerController {
         resultReturnTab = tabs.getSelectionModel().getSelectedItem();
         var view = FxmlViews.load("MatchScoresModal.fxml", this);
         scoreTitle.setText(match.opponents() + " · " + match.format());
+        correctionReason.setPromptText("Completed".equals(match.status()) ? "Correction reason (required)" : "Optional note for event history");
         scoreRows.clear();
         scoreRoot.setDisable(true);
         scoreStatus.setText("Loading saved map scores…");
@@ -354,7 +375,7 @@ public final class TournamentManagerController {
                 row.<ComboBox<String>>get("mapStatus").valueProperty().addListener((obs, old, value) -> updateSummary());
                 mapRows.getChildren().add(row.root());
             }
-            scoreRoot.setDisable(false); scoreStatus.setText(""); updateSummary();
+            scoreRoot.setDisable(false); scoreStatus.setText("Completed".equals(match.status()) ? downstream(match) : ""); updateSummary();
         }, error -> {
             scoreRoot.setDisable(false); scoreRoot.lookup("#save-match-scores").setDisable(true); scoreStatus.setText(error(error));
         });
@@ -387,8 +408,11 @@ public final class TournamentManagerController {
         } catch (IllegalArgumentException error) { scoreStatus.setText(error.getMessage()); return; }
         TournamentMatch match = editingMatch;
         List<MapResult> previous = originalMaps;
+        final String reason;
+        try { reason = CreatorValidation.text(correctionReason.getText(), "Correction reason", 500, "Completed".equals(match.status())); }
+        catch (IllegalArgumentException error) { scoreStatus.setText(error.getMessage()); return; }
         scoreRoot.setDisable(true); scoreStatus.setText("Saving maps and updating the bracket…");
-        BackgroundTask.run(() -> { matches.saveScores(match, previous, scores); return null; }, ignored -> {
+        BackgroundTask.run(() -> { matches.saveScores(match, previous, scores, reason); return null; }, ignored -> {
             backToManager(); tabs.getSelectionModel().select(resultReturnTab == null ? matchesTab : resultReturnTab); refresh();
         }, error -> { scoreRoot.setDisable(false); scoreStatus.setText(error(error)); });
     }
@@ -419,9 +443,9 @@ public final class TournamentManagerController {
                 slot.<StackPane>get("slot").setPrefHeight(height);
                 var card = FxmlViews.load("components/BracketMatch.fxml");
                 card.<Label>get("firstName").setText(match.team1Name()); card.<Label>get("secondName").setText(isBye(match) ? "BYE" : match.team2Name());
-                card.<Label>get("firstScore").setText(isBye(match) ? "✓" : Integer.toString(match.team1Maps()));
-                card.<Label>get("secondScore").setText(isBye(match) ? "—" : Integer.toString(match.team2Maps()));
-                card.<Label>get("status").setText(match.status() + " · " + match.format());
+                card.<Label>get("firstScore").setText(match.awarded() ? (Objects.equals(match.winnerId(),match.team1Id()) ? "W" : "L") : isBye(match) ? "✓" : Integer.toString(match.team1Maps()));
+                card.<Label>get("secondScore").setText(match.awarded() ? (Objects.equals(match.winnerId(),match.team2Id()) ? "W" : "L") : isBye(match) ? "—" : Integer.toString(match.team2Maps()));
+                card.<Label>get("status").setText((match.awarded() ? match.outcome() : match.status()) + " · " + match.format());
                 if (match.winnerId() != null) card.<Label>get(match.winnerId().equals(match.team1Id()) ? "firstName" : "secondName").getStyleClass().add("winner-name");
                 card.<Button>get("matchButton").setOnAction(event -> showScores(match));
                 card.<Button>get("matchButton").setDisable(match.team1Id() == null || match.team2Id() == null);

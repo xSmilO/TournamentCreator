@@ -4,15 +4,14 @@ Reviewed against the repository on 2026-11-08.
 
 ## Product goal
 
-Build a complete desktop tournament organizer with HLTV-style event, team, player,
-and match views. First make running a tournament reliable from setup to final
-results; then add historical statistics and richer presentation. A public website,
-accounts, and live game-server integration are separate, later projects.
+Create tournaments, register teams, enter scores, and retain event/results history.
+Keep routine data entry minimal. Detailed player statistics, historical lineups,
+rankings, vetoes, and public publishing are optional future ideas, not requirements
+for a complete app. Existing later milestones below are a deferred idea backlog.
 
-This is a code and documentation review, not an audit of the live database or a
-feature-by-feature review of the current HLTV website. The database was not queried
-or modified. All 93 automated tests passed; these use Java logic and JDBC doubles,
-not real PostgreSQL sessions. Milestone 1 also passed offscreen JavaFX checks for all seven editor modes, roster role editing, and the existing registration/bracket/scoring flow using fake DAOs. These checks do not validate live SQL.
+Milestone 2 implementation is complete; apply migration 005 manually before using
+it. Automated checks use JDBC doubles and offscreen JavaFX; live PostgreSQL has
+not been validated or modified.
 
 ## Current completeness
 
@@ -83,20 +82,24 @@ hard deletion of teams/players referenced by results.
 
 ## Milestone 2 — Tournament lifecycle and final results
 
-Priority: required for the first complete organizer release; follows milestone 1.
+Status: **completed on 2026-11-09**. Requires `005_tournament_lifecycle.sql`.
 
-- [ ] Persist tournament states: Draft, Registration, In progress, Completed,
+Withdrawals are match-level awarded outcomes; whole-event withdrawal automation
+is deferred. Cancellation without a winner applies to manual matches; managed
+group/bracket fixtures require a winner or cancellation of the event.
+
+- [x] Persist tournament states: Draft, Registration, In progress, Completed,
   Cancelled; support archiving separately from competition state.
-- [ ] Add explicit registration open/close and start/finish actions with validation.
-- [ ] Display schedule-derived labels separately from actual competition state.
-- [ ] On finish, require all relevant matches resolved and a valid champion.
-- [ ] Produce final standings and persist placements atomically with completion.
+- [x] Add explicit registration open/close and start/finish actions with validation.
+- [x] Display schedule-derived labels separately from actual competition state.
+- [x] On finish, require all relevant matches resolved and a valid champion.
+- [x] Produce final standings and persist placements atomically with completion.
   Decide how shared places work (for example, both semifinal losers share 3rd–4th).
-- [ ] Support forfeit, withdrawal, and cancelled match outcomes without inventing
+- [x] Support forfeit, withdrawal, and cancelled match outcomes without inventing
   map scores. Distinguish these from automatic byes.
-- [ ] Provide a controlled correction workflow: explain affected downstream games,
+- [x] Provide a controlled correction workflow: explain affected downstream games,
   block incompatible edits, and record the reason for an override.
-- [ ] Allow redraw/reset only under explicit rules, initially before any game starts.
+- [x] Allow redraw/reset only under explicit rules, initially before any game starts.
 
 Acceptance: complete a group-to-playoff event, reopen it, and see the same champion,
 placements, and state. An expired date alone never completes a tournament. A
@@ -205,7 +208,7 @@ history, and scoring rules should be implemented together with their migrations.
 
 ## Recommended next work package
 
-Milestone 1 is complete. Next implement milestone 2: explicit tournament
-lifecycle, final standings, and non-played outcomes such as forfeits. Deliver the
-required SQL migration for manual execution alongside that implementation.
-Historical rosters remain milestone 3; current transfers do not create history.
+Focus next on a simple results-history browser: find past tournaments, open their
+brackets and final standings, and see saved scores. Improve the create → register
+→ play → finish workflow before adding optional data. No detailed player-stat
+entry, lineup history, or veto system is required for the core release.

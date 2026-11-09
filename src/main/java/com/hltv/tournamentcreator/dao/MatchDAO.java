@@ -35,7 +35,7 @@ public class MatchDAO {
                         rs.getString("team2_name"), rs.getString("match_format"), rs.getString("status"),
                         rs.getObject("start_time", LocalDateTime.class), rs.getString("stage"), rs.getString("round_name"),
                         rs.getObject("winner_id", UUID.class), rs.getInt("score1"), rs.getInt("score2"), rs.getObject("next_match_id", UUID.class),
-                        rs.getObject("next_match_slot", Integer.class), rs.getObject("group_id", UUID.class)));
+                        rs.getObject("next_match_slot", Integer.class), rs.getObject("group_id", UUID.class), rs.getString("outcome_type"), rs.getString("outcome_reason")));
                 return matches;
             }
         }
@@ -55,7 +55,7 @@ public class MatchDAO {
         }
     }
 
-    private List<MapResult> getMaps(Connection conn, UUID matchId) throws SQLException {
+    List<MapResult> getMaps(Connection conn, UUID matchId) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM winit.games WHERE match_id=? ORDER BY map_order NULLS LAST, game_id")) {
             stmt.setObject(1, matchId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -124,14 +124,17 @@ public class MatchDAO {
                 }
             }
             insertBracket(conn, tournamentId, format, bracket);
+            try(var stmt=conn.prepareStatement("UPDATE winit.tournaments SET lifecycle_state='Draft' WHERE tournament_id=? AND lifecycle_state='Registration'")) {
+                stmt.setObject(1,tournamentId);stmt.executeUpdate();
+            }
         });
     }
 
     static void insertBracket(Connection conn, UUID tournamentId, String format, List<BracketMatch> bracket) throws SQLException {
         // Insert the final first so the next_match_id foreign keys already exist.
         try (PreparedStatement stmt = conn.prepareStatement("""
-                    INSERT INTO winit.matches (match_id,tournament_id,team1_id,team2_id,match_format,status,stage,round_name,next_match_id,next_match_slot,winner_id)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                    INSERT INTO winit.matches (match_id,tournament_id,team1_id,team2_id,match_format,status,stage,round_name,next_match_id,next_match_slot,winner_id,outcome_type)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
                     """)) {
                 for (int i = bracket.size() - 1; i >= 0; i--) {
                     BracketMatch match = bracket.get(i);
@@ -140,12 +143,19 @@ public class MatchDAO {
                     stmt.setString(6, match.winnerId() == null ? "Upcoming" : "Completed");
                     stmt.setString(7, SingleElimination.STAGE); stmt.setString(8, match.round());
                     stmt.setObject(9, match.nextMatchId()); stmt.setObject(10, match.nextSlot(), Types.INTEGER); stmt.setObject(11, match.winnerId());
+                    stmt.setString(12, match.winnerId()==null ? "Played" : "Bye");
                     stmt.executeUpdate();
                 }
         }
     }
 
     public void saveScores(TournamentMatch match, List<MapResult> original, List<MapResult> input) throws SQLException {
+        saveScores(match, original, input, null);
+    }
+
+    public void saveScores(TournamentMatch match, List<MapResult> original, List<MapResult> input, String inputReason) throws SQLException {
+        if (!"Played".equals(match.outcome())) throw new IllegalArgumentException("Reset the non-played outcome before entering map scores.");
+        String reason=CreatorValidation.text(inputReason,"Correction reason",500,"Completed".equals(match.status()));
         MatchResults.Summary result = MatchResults.evaluate(match.format(), match.team1Id(), match.team2Id(), input);
         Set<UUID> ids = new HashSet<>();
         for (MapResult map : result.maps()) {
@@ -154,6 +164,7 @@ public class MatchDAO {
         transaction(conn -> {
             // All writers lock the tournament before its matches, keeping bracket updates atomic.
             lockTournament(conn, match.tournamentId());
+            LifecycleDAO.running(conn,match.tournamentId());
             UUID oldWinner, nextId;
             Integer nextSlot;
             try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM winit.matches WHERE match_id=? AND tournament_id=? FOR UPDATE")) {
@@ -164,6 +175,8 @@ public class MatchDAO {
                             || !Objects.equals(match.team2Id(), rs.getObject("team2_id", UUID.class))
                             || !Objects.equals(match.format(), rs.getString("match_format")))
                         throw new SQLException("The opponents or format changed. Reopen the match.", "P0001");
+                    if (!Objects.equals(match.status(), rs.getString("status")) || !Objects.equals(match.outcome(), rs.getString("outcome_type")))
+                        throw new SQLException("The match outcome changed. Reopen the match.", "P0001");
                     oldWinner = rs.getObject("winner_id", UUID.class);
                     nextId = rs.getObject("next_match_id", UUID.class);
                     nextSlot = rs.getObject("next_match_slot", Integer.class);
@@ -204,7 +217,49 @@ public class MatchDAO {
             try (PreparedStatement stmt = conn.prepareStatement("UPDATE winit.matches SET status=?,winner_id=? WHERE match_id=?")) {
                 stmt.setString(1, result.status()); stmt.setObject(2, result.winnerId()); stmt.setObject(3, match.matchId()); stmt.executeUpdate();
             }
+            LifecycleDAO.audit(conn,match.tournamentId(),match.matchId(),"Save scores",reason==null ? "Score entry" : reason,
+                match+" maps="+original, result.toString());
         });
+    }
+
+    public void saveOutcome(TournamentMatch expected, List<MapResult> originalMaps, String outcome, UUID winner, String inputReason) throws SQLException {
+        String reason=CreatorValidation.text(inputReason,"Reason",500,true);
+        if(!Set.of("Forfeit","Withdrawal","Cancelled","Reset result").contains(outcome)) throw new IllegalArgumentException("Choose a valid outcome.");
+        transaction(conn -> {
+            lockTournament(conn,expected.tournamentId()); LifecycleDAO.running(conn,expected.tournamentId());
+            var current=getMatches(conn,expected.tournamentId()).stream().filter(m -> m.matchId().equals(expected.matchId())).findFirst()
+                .orElseThrow(() -> LifecycleDAO.rule("The match no longer exists."));
+            if(!current.equals(expected)) throw LifecycleDAO.rule("The match changed. Refresh and reopen its outcome editor.");
+            if("Bye".equals(current.outcome()) || current.team1Id()==null || current.team2Id()==null) throw LifecycleDAO.rule("Automatic byes and matches awaiting opponents cannot be overridden.");
+            if(current.groupId()!=null) ensureNoPlayoffs(conn,current.tournamentId());
+            var maps=getMaps(conn,current.matchId());
+            if(!maps.equals(originalMaps)) throw LifecycleDAO.rule("Map results changed. Reopen the outcome editor before changing them.");
+            boolean reset="Reset result".equals(outcome);
+            if(!reset && maps.stream().anyMatch(m -> !"Upcoming".equals(m.status()) || m.team1Score()!=0 || m.team2Score()!=0))
+                throw LifecycleDAO.rule("This match has map results. Use Reset result with a reason before assigning a non-played outcome.");
+            if(!reset && !"Played".equals(current.outcome())) throw LifecycleDAO.rule("Reset the existing outcome before replacing it.");
+            boolean cancel="Cancelled".equals(outcome);
+            if(cancel && (current.groupId()!=null || SingleElimination.STAGE.equals(current.stage())))
+                throw LifecycleDAO.rule("Group and bracket fixtures need a winner. Use a forfeit/withdrawal or cancel the whole tournament.");
+            UUID newWinner=reset || cancel ? null : winner;
+            if(!reset && !cancel && (newWinner==null || !newWinner.equals(current.team1Id()) && !newWinner.equals(current.team2Id())))
+                throw new IllegalArgumentException("Select the team awarded the win.");
+            if(current.nextMatchId()!=null && !Objects.equals(current.winnerId(),newWinner))
+                advanceWinner(conn,current.tournamentId(),current.matchId(),current.nextMatchId(),current.nextSlot(),current.winnerId(),newWinner);
+            try(var stmt=conn.prepareStatement("DELETE FROM winit.games WHERE match_id=?")){stmt.setObject(1,current.matchId());stmt.executeUpdate();}
+            try(var stmt=conn.prepareStatement("UPDATE winit.matches SET status=?,winner_id=?,outcome_type=?,outcome_reason=? WHERE match_id=?")) {
+                stmt.setString(1,reset?"Upcoming":"Completed");stmt.setObject(2,newWinner);stmt.setString(3,reset?"Played":outcome);
+                stmt.setString(4,reset?null:reason);stmt.setObject(5,current.matchId());stmt.executeUpdate();
+            }
+            LifecycleDAO.audit(conn,current.tournamentId(),current.matchId(),outcome,reason,current+" maps="+maps,
+                "Outcome="+(reset?"Played / Upcoming":outcome)+" winner="+newWinner+" next match="+current.nextMatchId());
+        });
+    }
+    private void ensureNoPlayoffs(Connection conn,UUID id)throws SQLException {
+        try(var s=conn.prepareStatement("SELECT 1 FROM winit.matches WHERE tournament_id=? AND stage=? LIMIT 1")) {
+            s.setObject(1,id);s.setString(2,SingleElimination.STAGE);
+            try(var rs=s.executeQuery()){if(rs.next())throw LifecycleDAO.rule("Group results are locked after playoffs are generated.");}
+        }
     }
 
     private void advanceWinner(Connection conn, UUID tournamentId, UUID source, UUID nextId, Integer slot, UUID oldWinner, UUID winner) throws SQLException {
@@ -229,10 +284,8 @@ public class MatchDAO {
     }
 
     static void lockTournament(Connection conn, UUID id) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("SELECT tournament_id FROM winit.tournaments WHERE tournament_id=? FOR UPDATE")) {
-            stmt.setObject(1, id);
-            try (ResultSet rs = stmt.executeQuery()) { if (!rs.next()) throw new SQLException("This tournament no longer exists.", "P0001"); }
-        }
+        try { com.hltv.tournamentcreator.utils.TournamentLifecycle.requireEditable(LifecycleDAO.state(conn,id,true)); }
+        catch(IllegalArgumentException e) { throw LifecycleDAO.rule(e.getMessage()); }
     }
 
     static void ensureNoBracket(Connection conn, UUID id) throws SQLException {

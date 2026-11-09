@@ -61,7 +61,7 @@ public class OrganizerDAO {
             if (structureChanged) {
                 boolean datesStarted = old.startDate() != null && !old.startDate().isAfter(LocalDate.now())
                     || old.endDate() != null && old.endDate().isBefore(LocalDate.now());
-                if (datesStarted || competitionExists(c, old.tournamentId()))
+                if (datesStarted || "In progress".equals(LifecycleDAO.state(c,old.tournamentId(),false).state()) || competitionExists(c, old.tournamentId()))
                     throw rule("Dates and format are locked after the start date, a draw, or a started match. Other details can still be edited.");
             }
             update(c, """
@@ -78,7 +78,7 @@ public class OrganizerDAO {
         if (seed < 1) throw new IllegalArgumentException("Seed must be a positive whole number.");
         transaction(c -> {
             MatchDAO.lockTournament(c, tournament);
-            if (competitionExists(c, tournament)) throw rule("Seeds are locked after groups/a bracket are drawn or a match starts.");
+            if ("In progress".equals(LifecycleDAO.state(c,tournament,false).state()) || competitionExists(c, tournament)) throw rule("Seeds are locked after groups/a bracket are drawn or a match starts.");
             try (var s = c.prepareStatement("SELECT 1 FROM winit.tournament_participants WHERE tournament_id=? AND seed_number=? AND team_id<>?")) {
                 bind(s, tournament, seed, old.teamId());
                 try (var rs = s.executeQuery()) { if (rs.next()) throw rule("That seed is already used. Choose an unused seed."); }

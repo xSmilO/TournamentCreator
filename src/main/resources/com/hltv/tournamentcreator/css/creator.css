@@ -19,6 +19,8 @@
 .creator-title { -fx-text-fill: #ebedf3; -fx-font-size: 22; -fx-font-weight: bold; }
 #creator-form .input-label { -fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #aab0ba; }
 #creator-form .creator-status { -fx-text-fill: #ffb166; -fx-font-size: 11; }
+#creator-form .text-area { -fx-text-fill: #ebedf3; -fx-prompt-text-fill: #969da9; -fx-background-color: #0d1116; -fx-border-color: #2a303a; }
+#creator-form .text-area .content { -fx-background-color: #0d1116; }
 #creator-form .scroll-pane { -fx-padding: 0 10 0 0; }
 #creator-form .text-field { -fx-min-height: 39; }
 #creator-form .combo-box {

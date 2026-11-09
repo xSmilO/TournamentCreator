@@ -49,6 +49,8 @@ psql -h localhost -U tournament_app -d tournamentcreator -v ON_ERROR_STOP=1 -f d
 Use a database owner or migration account if the application account cannot alter
 tables. The app does not automatically execute migrations.
 
+Apply `db/migrations/005_tournament_lifecycle.sql` after 004 to enable event states, outcomes, and audit history.
+
 ## Run and test
 
 ```powershell

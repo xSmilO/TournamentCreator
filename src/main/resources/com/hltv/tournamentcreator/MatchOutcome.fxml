@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" id="creator-form" styleClass="creator-dialog" stylesheets="@css/creator.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+ <Label text="MATCH OUTCOME / CORRECTION" styleClass="eyebrow, accent"/><Label fx:id="title" styleClass="creator-title" wrapText="true"/>
+ <Label fx:id="impact" styleClass="muted" wrapText="true" minHeight="-Infinity"/>
+ <Label text="Action" styleClass="input-label"/><ComboBox fx:id="action" maxWidth="Infinity"/>
+ <Label text="Award the win to (forfeit / withdrawal only)" styleClass="input-label"/><ComboBox fx:id="winner" maxWidth="Infinity"/>
+ <TextArea fx:id="reason" promptText="Reason (required, maximum 500 characters)" wrapText="true" prefRowCount="3"/>
+ <CheckBox fx:id="confirm" text="I confirm this result change."/>
+ <Label fx:id="status" styleClass="creator-status" wrapText="true" minHeight="-Infinity"/>
+ <HBox alignment="CENTER_RIGHT" spacing="12"><Button text="Cancel" styleClass="secondary" onAction="#back"/><Button fx:id="save" text="Save outcome" styleClass="primary" onAction="#save"/></HBox>
+</VBox>

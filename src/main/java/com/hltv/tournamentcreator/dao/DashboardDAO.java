@@ -19,8 +19,10 @@ public class DashboardDAO {
                     SELECT (SELECT count(*) FROM winit.tournaments) AS tournaments,
                            (SELECT count(*) FROM winit.teams) AS teams,
                            (SELECT count(*) FROM winit.players) AS players,
-                           (SELECT count(*) FROM winit.matches WHERE status = 'Completed' AND team1_id IS NOT NULL AND team2_id IS NOT NULL) AS played,
-                           (SELECT count(*) FROM winit.matches WHERE status = 'Upcoming' AND team1_id IS NOT NULL AND team2_id IS NOT NULL) AS scheduled
+                           (SELECT count(*) FROM winit.matches WHERE status = 'Completed' AND outcome_type='Played' AND team1_id IS NOT NULL AND team2_id IS NOT NULL) AS played,
+                           (SELECT count(*) FROM winit.matches m JOIN winit.tournaments t ON t.tournament_id=m.tournament_id
+                            WHERE m.status = 'Upcoming' AND m.team1_id IS NOT NULL AND m.team2_id IS NOT NULL
+                            AND t.lifecycle_state NOT IN ('Completed','Cancelled') AND NOT t.archived) AS scheduled
                     """); ResultSet rs = stmt.executeQuery()) {
                 rs.next();
                 tournaments = rs.getInt("tournaments"); teams = rs.getInt("teams");
@@ -34,7 +36,7 @@ public class DashboardDAO {
                     FROM winit.matches m LEFT JOIN winit.tournaments t ON t.tournament_id = m.tournament_id
                     LEFT JOIN winit.teams a ON a.team_id = m.team1_id
                     LEFT JOIN winit.teams b ON b.team_id = m.team2_id
-                    WHERE m.status IN ('Upcoming', 'Live') AND m.team1_id IS NOT NULL AND m.team2_id IS NOT NULL
+                    WHERE m.status IN ('Upcoming', 'Live') AND t.lifecycle_state NOT IN ('Completed','Cancelled') AND NOT t.archived AND m.team1_id IS NOT NULL AND m.team2_id IS NOT NULL
                     ORDER BY CASE WHEN m.status = 'Live' THEN 0 ELSE 1 END, m.start_time NULLS LAST LIMIT 5
                     """); ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) matches.add(new ScheduledMatch(rs.getString("tournament"), rs.getString("team1"),

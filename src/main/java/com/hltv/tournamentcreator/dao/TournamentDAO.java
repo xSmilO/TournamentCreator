@@ -29,7 +29,7 @@ public class TournamentDAO {
                 tournaments.add(new Tournament(rs.getObject("tournament_id", UUID.class), rs.getString("name"),
                         rs.getString("tier"), rs.getObject("start_date", java.time.LocalDate.class),
                         rs.getObject("end_date", java.time.LocalDate.class), rs.getBigDecimal("prize_pool"),
-                        rs.getString("location"), rs.getString("format"), rs.getInt("participant_count"), rs.getInt("team_limit")));
+                        rs.getString("location"), rs.getString("format"), rs.getInt("participant_count"), rs.getInt("team_limit"), rs.getString("lifecycle_state"), rs.getBoolean("archived")));
             }
             return tournaments;
         }
@@ -181,15 +181,12 @@ public class TournamentDAO {
 
     private static boolean registrationOpen(Connection conn, UUID id) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement("""
-                SELECT start_date, end_date FROM winit.tournaments WHERE tournament_id=?
+                SELECT start_date, end_date, lifecycle_state, archived FROM winit.tournaments WHERE tournament_id=?
                 """)) {
             stmt.setObject(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) throw new SQLException("This tournament no longer exists.", "P0001");
-                var today = java.time.LocalDate.now();
-                var start = rs.getObject("start_date", java.time.LocalDate.class);
-                var end = rs.getObject("end_date", java.time.LocalDate.class);
-                if (start != null && !start.isAfter(today) || end != null && end.isBefore(today)) return false;
+                if (!"Registration".equals(rs.getString("lifecycle_state")) || rs.getBoolean("archived")) return false;
             }
         }
         try (PreparedStatement stmt = conn.prepareStatement("""
@@ -204,7 +201,7 @@ public class TournamentDAO {
 
     private static void ensureRegistrationOpen(Connection conn, UUID id) throws SQLException {
         if (!registrationOpen(conn, id)) throw new SQLException(
-                "Team changes are closed: the tournament has started or groups/bracket have been generated.", "P0001");
+                "Registration is closed. Open it from Event control before adding/removing teams; existing groups or brackets must first be reset.", "P0001");
     }
 
     public void unregisterTeam(UUID tournamentId, UUID teamId) throws SQLException {

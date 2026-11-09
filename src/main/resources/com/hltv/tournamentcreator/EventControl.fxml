@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" id="creator-form" styleClass="score-dialog" stylesheets="@css/creator.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+ <Label text="EVENT CONTROL" styleClass="eyebrow, accent"/><Label fx:id="title" styleClass="creator-title"/>
+ <Label fx:id="stateLabel" styleClass="bracket-caption"/>
+ <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" minHeight="0">
+  <tabs>
+   <Tab text="Lifecycle"><VBox spacing="12" styleClass="tournament-tab">
+    <Label text="Event state is independent of dates. Draw groups/a bracket before starting. Finish only after all fixtures are resolved and a bracket champion is known." wrapText="true" styleClass="muted" minHeight="-Infinity"/>
+    <ComboBox fx:id="action" maxWidth="Infinity"/>
+    <Label fx:id="explanation" wrapText="true" styleClass="muted" minHeight="-Infinity"/>
+    <TextArea fx:id="reason" promptText="Note (required only for cancellation, reopening or reset)" wrapText="true" prefRowCount="3"/>
+    <CheckBox fx:id="confirm" text="I confirm this action and its effects."/>
+    <Button fx:id="apply" text="Apply action" styleClass="primary" onAction="#apply"/>
+   </VBox></Tab>
+   <Tab text="Final standings"><VBox spacing="12" styleClass="tournament-tab">
+    <Label text="Placements are saved when the event finishes. Equal numbers represent shared places; group-stage eliminations share the first place below playoff qualifiers." wrapText="true" styleClass="muted" minHeight="-Infinity"/>
+    <TableView fx:id="standings" VBox.vgrow="ALWAYS"><placeholder><Label text="Finish the tournament to publish final standings."/></placeholder><columns><TableColumn fx:id="placeColumn" text="PLACE" prefWidth="100"/><TableColumn fx:id="teamColumn" text="TEAM" prefWidth="500"/></columns></TableView>
+   </VBox></Tab>
+   <Tab text="History"><VBox spacing="10" styleClass="tournament-tab">
+    <Label text="Most recent 100 actions. Select one to inspect its saved before/after details." styleClass="muted" wrapText="true"/>
+    <TableView fx:id="history" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="timeColumn" text="WHEN" prefWidth="200"/><TableColumn fx:id="actionColumn" text="ACTION" prefWidth="150"/><TableColumn fx:id="reasonColumn" text="REASON" prefWidth="300"/></columns></TableView>
+    <TextArea fx:id="details" editable="false" wrapText="true" prefRowCount="4"/>
+   </VBox></Tab>
+  </tabs>
+ </TabPane>
+ <Label fx:id="status" styleClass="creator-status" wrapText="true" minHeight="-Infinity"/>
+ <HBox alignment="CENTER_RIGHT" spacing="12"><Button text="Refresh" styleClass="secondary" onAction="#refresh"/><Button text="Back to tournament" styleClass="secondary" onAction="#back"/></HBox>
+</VBox>

@@ -19,16 +19,11 @@ public class TournamentSectionController extends DatabaseSectionController<Tourn
     private final TournamentDAO dao = new TournamentDAO();
     @Override protected String sectionName() { return "Tournaments"; }
     @Override protected List<Tournament> fetchRows() throws Exception { return dao.getAllTournaments(); }
-    @Override protected List<String> filterOptions() { return List.of("All tournaments", "Draft", "Upcoming", "Active", "Completed"); }
+    @Override protected List<String> filterOptions() { return List.of("All tournaments", "Draft", "Registration", "In progress", "Completed", "Cancelled", "Archived"); }
     @Override protected boolean matchesFilter(Tournament t, String filter) {
         return "All tournaments".equals(filter) || state(t).equals(filter);
     }
-    private String state(Tournament t) {
-        LocalDate today = LocalDate.now();
-        if (t.endDate() != null && t.endDate().isBefore(today)) return "Completed";
-        if (t.startDate() == null) return "Draft";
-        return t.startDate().isAfter(today) ? "Upcoming" : "Active";
-    }
+    private String state(Tournament t) { return t.archived() ? "Archived" : t.state(); }
     @Override protected Node card(Tournament t) {
         var view = FxmlViews.load("components/TournamentCard.fxml");
         view.<VBox>get("art").getStyleClass().add("mark-" + Math.floorMod(t.name().hashCode(), 4));
@@ -37,7 +32,9 @@ public class TournamentSectionController extends DatabaseSectionController<Tourn
         view.<Label>get("name").setText(t.name());
         String dates = (t.startDate() == null ? "Dates to be confirmed" : t.startDate().toString())
                 + (t.endDate() == null ? "" : " — " + t.endDate());
-        view.<Label>get("summary").setText(t.participantCount() + " / " + t.teamLimit() + " teams  ·  " + dates);
+        String schedule = t.endDate()!=null && t.endDate().isBefore(LocalDate.now()) ? "Scheduled dates ended"
+                : t.startDate()!=null && t.startDate().isAfter(LocalDate.now()) ? "Scheduled upcoming" : "Schedule";
+        view.<Label>get("summary").setText(t.participantCount() + " / " + t.teamLimit() + " teams  ·  " + schedule + ": " + dates);
         view.<Label>get("meta").setText((t.tier() == null ? "Unspecified tier" : t.tier())
                 + (t.location() == null ? "" : "  ·  " + t.location())
                 + (t.prizePool() == null ? "" : "  ·  Prize pool " + t.prizePool().toPlainString()));

@@ -7,7 +7,7 @@
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <HBox alignment="CENTER_LEFT" spacing="20">
         <VBox spacing="6" HBox.hgrow="ALWAYS"><Label text="TOURNAMENT CONTROL" styleClass="eyebrow, accent"/><Label fx:id="title" styleClass="creator-title" wrapText="true"/></VBox>
-        <Button text="Close" onAction="#close" styleClass="secondary"/>
+        <Button text="Event control" onAction="#eventControl" styleClass="secondary"/><Button text="Close" onAction="#close" styleClass="secondary"/>
     </HBox>
     <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" minHeight="0">
         <tabs>
@@ -20,12 +20,12 @@
                         <placeholder><Label text="No registered teams. Click Add teams to register your participants." wrapText="true"/></placeholder>
                         <columns><TableColumn fx:id="participantSeed" text="SEED" minWidth="90" maxWidth="120"/><TableColumn fx:id="participantName" text="TEAM" minWidth="250"/></columns>
                     </TableView>
-                    <Label text="Add or remove teams before the start date. Team changes also close when groups or a bracket are generated, or a match starts. Teams with scheduled matches cannot be removed." styleClass="muted" wrapText="true"/>
+                    <Label text="Open registration in Event control to add/remove teams. Changes close when groups/a bracket are generated or the event starts. Teams with scheduled matches cannot be removed." styleClass="muted" wrapText="true"/>
                 </VBox>
             </Tab>
             <Tab fx:id="matchesTab" text="Matches">
                 <VBox spacing="14" styleClass="tournament-tab">
-                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Matches and map results" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="editSchedule" text="Schedule" onAction="#editSchedule" styleClass="secondary"/><Button fx:id="addMatch" text="＋  Add match" onAction="#showMatchCreator" styleClass="secondary"/><Button fx:id="editScores" text="Enter / edit scores" onAction="#editSelectedScores" styleClass="primary"/></HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Matches and map results" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="editOutcome" text="Outcome / reset" onAction="#editOutcome" styleClass="secondary"/><Button fx:id="editSchedule" text="Schedule" onAction="#editSchedule" styleClass="secondary"/><Button fx:id="addMatch" text="＋  Add match" onAction="#showMatchCreator" styleClass="secondary"/><Button fx:id="editScores" text="Enter / edit scores" onAction="#editSelectedScores" styleClass="primary"/></HBox>
                     <TableView fx:id="matchesTable" VBox.vgrow="ALWAYS">
                         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
                         <placeholder><Label text="No matches yet. Generate a bracket or add a match manually."/></placeholder>

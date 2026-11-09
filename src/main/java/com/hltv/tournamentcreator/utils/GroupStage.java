@@ -61,7 +61,12 @@ public final class GroupStage {
             int required = MatchResults.mapLimit(match.format()) / 2 + 1;
             boolean firstWon = match.team1Maps() == required && match.team2Maps() >= 0 && match.team2Maps() < required;
             boolean secondWon = match.team2Maps() == required && match.team1Maps() >= 0 && match.team1Maps() < required;
-            if ((!firstWon && !secondWon) || !Objects.equals(match.winnerId(), firstWon ? match.team1Id() : match.team2Id()))
+            if (match.awarded()) {
+                firstWon=Objects.equals(match.winnerId(),match.team1Id());
+                secondWon=Objects.equals(match.winnerId(),match.team2Id());
+                if(match.team1Maps()!=0 || match.team2Maps()!=0) throw new IllegalArgumentException("Awarded results cannot contain map wins.");
+            }
+            if (match.cancelled() || (!firstWon && !secondWon) || !Objects.equals(match.winnerId(), firstWon ? match.team1Id() : match.team2Id()))
                 throw new IllegalArgumentException("A completed group match has inconsistent map scores or winner.");
             int[] a = stats.get(match.team1Id()), b = stats.get(match.team2Id());
             a[0]++; b[0]++;
