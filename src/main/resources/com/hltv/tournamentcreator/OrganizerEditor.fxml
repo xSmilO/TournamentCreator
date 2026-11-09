@@ -24,8 +24,8 @@
                 <VBox styleClass="form-field"><Label text="Format description" styleClass="input-label"/><TextField fx:id="format"/></VBox>
             </VBox>
             <VBox fx:id="transferPane" spacing="12">
-                <VBox styleClass="form-field"><Label text="Destination team" styleClass="input-label"/><ComboBox fx:id="destination" minWidth="0" prefWidth="0" maxWidth="Infinity"/></VBox>
-                <VBox styleClass="form-field"><Label text="Role in destination team" styleClass="input-label"/><ComboBox fx:id="role" editable="true" maxWidth="Infinity"/></VBox>
+                <VBox styleClass="form-field"><Label text="Destination team" styleClass="input-label"/><ComboBox fx:id="destination" minWidth="0" prefWidth="0" maxWidth="Infinity" promptText="Select destination team" visibleRowCount="8"/></VBox>
+                <VBox styleClass="form-field"><Label text="Role in destination team" styleClass="input-label"/><ComboBox fx:id="role" editable="true" minWidth="0" prefWidth="0" maxWidth="Infinity" promptText="Choose or type a role" visibleRowCount="8"/></VBox>
             </VBox>
             <VBox fx:id="seedPane" styleClass="form-field"><Label text="Seed (positive, unused number)" styleClass="input-label"/><TextField fx:id="seed"/></VBox>
             <VBox fx:id="schedulePane" spacing="12">

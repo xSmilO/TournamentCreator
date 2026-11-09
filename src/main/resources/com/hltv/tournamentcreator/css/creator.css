@@ -127,6 +127,21 @@
 .organizer-team, .organizer-seed { -fx-max-height: 380; }
 .organizer-release { -fx-max-height: 300; }
 .organizer-transfer, .organizer-schedule { -fx-max-height: 460; }
+#creator-form.organizer-transfer .combo-box:editable > .text-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0 8;
+    -fx-min-height: 37;
+    -fx-pref-height: 37;
+    -fx-max-height: 37;
+}
+#creator-form.organizer-transfer .combo-box > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10;
+}
+#creator-form.organizer-transfer .combo-box > .arrow-button > .arrow { -fx-background-color: #aab0bb; }
+#creator-form.organizer-transfer .combo-box:focused,
+#creator-form.organizer-transfer .combo-box:showing { -fx-border-color: #ff8a24; }
 #creator-form.organizer-editor .date-picker { -fx-padding: 0; -fx-min-height: 39; -fx-pref-height: 39; -fx-max-height: 39; }
 #creator-form.organizer-editor .date-picker > .text-field { -fx-min-height: 37; -fx-pref-height: 37; -fx-max-height: 37; }
 .roster-dialog { -fx-spacing: 18; -fx-max-width: 850; -fx-max-height: 640; -fx-min-height: 0; }
