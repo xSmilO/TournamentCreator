@@ -28,6 +28,10 @@
                 <VBox styleClass="form-field"><Label text="Role in destination team" styleClass="input-label"/><ComboBox fx:id="role" editable="true" minWidth="0" prefWidth="0" maxWidth="Infinity" promptText="Choose or type a role" visibleRowCount="8"/></VBox>
             </VBox>
             <VBox fx:id="seedPane" styleClass="form-field"><Label text="Seed (positive, unused number)" styleClass="input-label"/><TextField fx:id="seed"/></VBox>
+            <VBox fx:id="matchFormatPane" styleClass="form-field">
+                <Label text="Match format" styleClass="input-label"/>
+                <ComboBox fx:id="matchFormat" maxWidth="Infinity"/>
+            </VBox>
             <VBox fx:id="schedulePane" spacing="12">
                 <VBox styleClass="form-field"><Label text="Match date (local time)" styleClass="input-label"/><DatePicker fx:id="matchDate"/></VBox>
                 <VBox styleClass="form-field"><Label text="Time (HH:mm)" styleClass="input-label"/><TextField fx:id="time" promptText="18:30"/></VBox>

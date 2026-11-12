@@ -130,6 +130,33 @@ class OrganizerPersistenceTest {
         assertThrows(SQLException.class, () -> new OrganizerDAO(j::connection).updateSchedule(match(),null));
         assertTrue(j.rolledBack); assertFalse(j.committed);
     }
+
+    @Test void formatChangeCommitsWithNewMapLimit() throws Exception {
+        var j = jdbc();
+        TournamentMatch match = match();
+        new OrganizerDAO(j::connection).updateMatchFormat(match, "Bo5");
+        assertTrue(j.committed);
+        assertEquals("Bo5", j.updates.getFirst().parameters().get(1));
+        assertEquals(match.matchId(), j.updates.getFirst().parameters().get(2));
+        assertEquals("Bo3", j.updates.getFirst().parameters().get(4));
+        assertEquals(5, j.updates.getLast().parameters().get(2));
+    }
+
+    @Test void rejectedFormatChangeLeavesPlannedMapsAlone() {
+        var j = jdbc();
+        j.updateCount = 0;
+        assertThrows(SQLException.class, () -> new OrganizerDAO(j::connection).updateMatchFormat(match(), "Bo1"));
+        assertTrue(j.rolledBack);
+        assertEquals(1, j.updates.size());
+    }
+
+    @Test void failedMapCleanupRollsBackFormatChange() {
+        var j = jdbc();
+        j.failUpdate = "DELETE FROM winit.games";
+        assertThrows(SQLException.class, () -> new OrganizerDAO(j::connection).updateMatchFormat(match(), "Bo1"));
+        assertTrue(j.rolledBack);
+        assertFalse(j.committed);
+    }
     @Test void playerNumericMappingPreservesNullZeroAndDecimals() throws Exception {
         var j=jdbc(); var missing=new HashMap<String,Object>(); missing.put("player_id",id);
         var zero=new HashMap<>(missing); zero.put("hltv_rating",BigDecimal.ZERO); zero.put("headshot_percentage",new BigDecimal("52.35"));

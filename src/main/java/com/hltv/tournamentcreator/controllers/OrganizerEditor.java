@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 /** Shared FXML form for small organizer edits; each mode exposes only its own fields. */
 public final class OrganizerEditor {
-    private enum Mode { PLAYER, TEAM, TOURNAMENT, TRANSFER, RELEASE, SEED, SCHEDULE }
+    private enum Mode { PLAYER, TEAM, TOURNAMENT, TRANSFER, RELEASE, SEED, SCHEDULE, MATCH_FORMAT }
     private final OrganizerDAO dao;
     private final CountryDAO countries;
     private final TeamDAO teams;
@@ -24,13 +24,13 @@ public final class OrganizerEditor {
     private Object original;
     private UUID owner;
     private boolean finished;
-    @FXML private VBox root, namePane, playerPane, rankingPane, tournamentPane, transferPane, seedPane, schedulePane;
+    @FXML private VBox root, namePane, playerPane, rankingPane, tournamentPane, transferPane, seedPane, schedulePane, matchFormatPane;
     @FXML private Label title, hint, status, nameLabel;
     @FXML private TextField name, first, last, ranking, prize, venue, format, seed, time;
     @FXML private DatePicker birth, start, end, matchDate;
     @FXML private ComboBox<Country> country;
     @FXML private ComboBox<Team> destination;
-    @FXML private ComboBox<String> tier, role;
+    @FXML private ComboBox<String> tier, role, matchFormat;
     @FXML private Button save, cancel;
 
     public OrganizerEditor(Runnable onSaved, Runnable onCancel) { this(new OrganizerDAO(), onSaved, onCancel); }
@@ -43,11 +43,11 @@ public final class OrganizerEditor {
     private void open(Mode mode, Object original, String caption, String explanation) {
         this.mode = mode; this.original = original; finished = false;
         var view = FxmlViews.load("OrganizerEditor.fxml", this);
-        for (VBox pane : List.of(namePane, playerPane, rankingPane, tournamentPane, transferPane, seedPane, schedulePane)) {
+        for (VBox pane : List.of(namePane, playerPane, rankingPane, tournamentPane, transferPane, seedPane, schedulePane, matchFormatPane)) {
             pane.setVisible(false); pane.setManaged(false);
         }
         title.setText(caption); hint.setText(explanation);
-        root.getStyleClass().add("organizer-" + mode.name().toLowerCase(Locale.ROOT));
+        root.getStyleClass().add("organizer-" + mode.name().toLowerCase(Locale.ROOT).replace('_', '-'));
         ModalManager.getInstance().showModal(view.root());
     }
     private void show(VBox... panes) { for (var pane : panes) { pane.setVisible(true); pane.setManaged(true); } }
@@ -94,6 +94,14 @@ public final class OrganizerEditor {
         show(schedulePane);
         if (match.start() != null) { matchDate.setValue(match.start().toLocalDate()); time.setText(match.start().format(DateTimeFormatter.ofPattern("HH:mm"))); }
         if (!"Upcoming".equals(match.status())) { save.setDisable(true); status.setText("This match has already started or completed."); }
+    }
+
+    public void matchFormat(TournamentMatch match) {
+        open(Mode.MATCH_FORMAT, match, "Match format · " + match.opponents(),
+            "Only upcoming matches without scores can change format. Shortening the series removes any planned maps beyond the new limit.");
+        show(matchFormatPane);
+        matchFormat.getItems().setAll("Bo1", "Bo3", "Bo5");
+        matchFormat.setValue(match.format());
     }
     private <T> void load(BackgroundTask.Work<List<T>> fetch, java.util.function.Consumer<List<T>> accept) {
         save.setDisable(true); status.setText("Loading choices…");
@@ -164,6 +172,12 @@ public final class OrganizerEditor {
                 }
                 LocalDateTime schedule = value;
                 return () -> { dao.updateSchedule((TournamentMatch) original, schedule); return null; };
+            }
+            case MATCH_FORMAT -> {
+                TournamentMatch match = (TournamentMatch) original;
+                String selectedFormat = matchFormat.getValue();
+                MatchResults.mapLimit(selectedFormat);
+                return () -> { dao.updateMatchFormat(match, selectedFormat); return null; };
             }
         }
         throw new IllegalStateException("Unknown edit mode");

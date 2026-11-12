@@ -41,14 +41,14 @@ public final class TournamentManagerController {
     private record ScoreData(List<MapResult> maps, List<String> names) {}
     private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups, boolean registrationOpen) {}
     private final javafx.beans.property.BooleanProperty registrationOpen = new javafx.beans.property.SimpleBooleanProperty(false);
-    @FXML private Button removeTeam, editSeed, editSchedule, editOutcome;
+    @FXML private Button removeTeam, editSeed, editSchedule, editOutcome, editMatchFormat;
 
     @FXML private VBox managerRoot, teamPickerRoot, matchFormRoot, scoreRoot, mapRows;
     @FXML private Label title, managerStatus, champion, teamPickerStatus, matchFormStatus, scoreTitle, scoreStatus, seriesSummary, capacityLabel;
     @FXML private TableView<TournamentParticipant> participantsTable;
     @FXML private TableColumn<TournamentParticipant,String> participantSeed, participantName;
     @FXML private TableView<TournamentMatch> matchesTable;
-    @FXML private TableColumn<TournamentMatch,String> matchOpponents, matchScore, matchStatus, matchRound, matchStart;
+    @FXML private TableColumn<TournamentMatch,String> matchOpponents, matchScore, matchStatus, matchRound, matchStart, matchSeriesFormat;
     @FXML private TableView<Team> eligibleTable;
     @FXML private TableColumn<Team,String> eligibleName, eligibleRanking;
     @FXML private TextField teamSearch, timeField, stageField, roundField, teamLimitField, correctionReason;
@@ -79,6 +79,7 @@ public final class TournamentManagerController {
         bind(participantName, TournamentParticipant::name);
         bind(participantSeed, p -> p.seed() == null ? "—" : p.seed().toString());
         bind(matchOpponents, TournamentMatch::opponents);
+        bind(matchSeriesFormat, match -> text(match.format()));
         bind(matchScore, m -> isBye(m) ? "Bye" : m.score());
         bind(matchStatus, TournamentMatch::status);
         bind(matchRound, m -> text(m.round()));
@@ -87,6 +88,12 @@ public final class TournamentManagerController {
         editSeed.disableProperty().bind(participantsTable.getSelectionModel().selectedItemProperty().isNull());
         editOutcome.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
         editSchedule.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
+        var selectedMatch = matchesTable.getSelectionModel().selectedItemProperty();
+        editMatchFormat.disableProperty().bind(javafx.beans.binding.Bindings.createBooleanBinding(() -> {
+            TournamentMatch match = selectedMatch.get();
+            return match == null || !"Upcoming".equals(match.status()) || !"Played".equals(match.outcome())
+                || match.winnerId() != null || match.team1Maps() != 0 || match.team2Maps() != 0;
+        }, selectedMatch));
         removeTeam.disableProperty().bind(registrationOpen.not().or(participantsTable.getSelectionModel().selectedItemProperty().isNull()));
         ModalManager.getInstance().showModal(view.root());
         refresh();
@@ -114,6 +121,11 @@ public final class TournamentManagerController {
     @FXML private void editSchedule() {
         var match = matchesTable.getSelectionModel().getSelectedItem();
         if (match != null) new OrganizerEditor(this::returnFromEdit, this::backToManager).schedule(match);
+    }
+
+    @FXML private void editMatchFormat() {
+        TournamentMatch match = matchesTable.getSelectionModel().getSelectedItem();
+        if (match != null) new OrganizerEditor(this::returnFromEdit, this::backToManager).matchFormat(match);
     }
     private void returnFromEdit() { backToManager(); refresh(); onChanged.run(); }
 

@@ -127,6 +127,7 @@
 .organizer-team, .organizer-seed { -fx-max-height: 380; }
 .organizer-release { -fx-max-height: 300; }
 .organizer-transfer, .organizer-schedule { -fx-max-height: 460; }
+.organizer-match-format { -fx-max-height: 340; }
 #creator-form.organizer-transfer .combo-box:editable > .text-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;

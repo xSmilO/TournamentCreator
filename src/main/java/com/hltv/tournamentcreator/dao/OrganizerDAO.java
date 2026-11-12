@@ -2,6 +2,7 @@ package com.hltv.tournamentcreator.dao;
 
 import com.hltv.tournamentcreator.models.*;
 import com.hltv.tournamentcreator.utils.CreatorValidation;
+import com.hltv.tournamentcreator.utils.MatchResults;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
@@ -95,6 +96,32 @@ public class OrganizerDAO {
                 UPDATE winit.matches SET start_time=? WHERE match_id=? AND tournament_id=?
                 AND start_time IS NOT DISTINCT FROM ? AND status='Upcoming'
                 """, start, old.matchId(), old.tournamentId(), old.start());
+        });
+    }
+
+    public void updateMatchFormat(TournamentMatch match, String format) throws SQLException {
+        int mapLimit = MatchResults.mapLimit(format);
+        transaction(conn -> {
+            // Score entry takes the same tournament lock before reading the match format.
+            MatchDAO.lockTournament(conn, match.tournamentId());
+            try (var stmt = conn.prepareStatement("""
+                UPDATE winit.matches m SET match_format=?
+                WHERE m.match_id=? AND m.tournament_id=? AND m.match_format IS NOT DISTINCT FROM ?
+                  AND m.status='Upcoming' AND m.outcome_type='Played' AND m.winner_id IS NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM winit.games g WHERE g.match_id=m.match_id
+                      AND (g.status IS DISTINCT FROM 'Upcoming' OR g.winner_id IS NOT NULL
+                           OR COALESCE(g.team1_score, 0) <> 0 OR COALESCE(g.team2_score, 0) <> 0)
+                  )
+                """)) {
+                bind(stmt, format, match.matchId(), match.tournamentId(), match.format());
+                if (stmt.executeUpdate() != 1)
+                    throw rule("This match changed or has saved results. Refresh before editing its format.");
+            }
+            try (var stmt = conn.prepareStatement("DELETE FROM winit.games WHERE match_id=? AND map_order > ?")) {
+                bind(stmt, match.matchId(), mapLimit);
+                stmt.executeUpdate();
+            }
         });
     }
 
