@@ -7,6 +7,7 @@ import com.hltv.tournamentcreator.models.*;
 import com.hltv.tournamentcreator.utils.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.css.PseudoClass;
@@ -32,7 +33,7 @@ public final class TournamentManagerController {
     private final GroupStageDAO groups;
     private final Runnable onChanged;
     private List<TournamentParticipant> participants = List.of();
-    private List<TournamentMatch> currentMatches = List.of();
+    private final ObservableList<TournamentMatch> currentMatches = FXCollections.observableArrayList();
     private List<TournamentGroup> currentGroups = List.of();
     private Tab resultReturnTab;
     private int capacity;
@@ -50,6 +51,8 @@ public final class TournamentManagerController {
     @FXML private TableView<TournamentParticipant> participantsTable;
     @FXML private TableColumn<TournamentParticipant,String> participantSeed, participantName;
     @FXML private TableView<TournamentMatch> matchesTable;
+    @FXML private ComboBox<String> matchStatusFilter;
+    @FXML private Label matchesPlaceholder;
     @FXML private TableColumn<TournamentMatch,String> matchOpponents, matchScore, matchStatus, matchRound, matchStart, matchSeriesFormat;
     @FXML private TableView<Team> eligibleTable;
     @FXML private TableColumn<Team,String> eligibleName, eligibleRanking;
@@ -86,6 +89,16 @@ public final class TournamentManagerController {
         bind(matchStatus, TournamentMatch::status);
         bind(matchRound, m -> text(m.round()));
         bind(matchStart, m -> m.start() == null ? "Unscheduled" : m.start().format(DateTimeFormatter.ofPattern("dd MMM HH:mm", Locale.ENGLISH)));
+        var filteredMatches = new FilteredList<>(currentMatches);
+        var sortedMatches = new SortedList<>(filteredMatches);
+        sortedMatches.comparatorProperty().bind(matchesTable.comparatorProperty());
+        matchesTable.setItems(sortedMatches);
+        matchStatusFilter.valueProperty().addListener((obs, oldStatus, status) -> {
+            boolean showAll = status == null || "All statuses".equals(status);
+            filteredMatches.setPredicate(match -> showAll || status.equals(match.status()));
+            matchesPlaceholder.setText(showAll ? "No matches yet. Generate a bracket or add a match manually."
+                : "No matches with status " + status + ".");
+        });
         editScores.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
         editSeed.disableProperty().bind(participantsTable.getSelectionModel().selectedItemProperty().isNull());
         editOutcome.disableProperty().bind(matchesTable.getSelectionModel().selectedItemProperty().isNull());
@@ -138,13 +151,12 @@ public final class TournamentManagerController {
         managerStatus.setText("Loading tournament…");
         BackgroundTask.run(() -> new Snapshot(tournaments.getRegisteredTeams(tournament.tournamentId()), matches.getMatches(tournament.tournamentId()),
                 tournaments.getTeamLimit(tournament.tournamentId()), groups.getGroups(tournament.tournamentId()), tournaments.isRegistrationOpen(tournament.tournamentId())), data -> {
-            participants = data.teams(); currentMatches = data.matches();
+            participants = data.teams(); currentMatches.setAll(data.matches());
             currentGroups = data.groups();
             capacity = data.limit();
             teamLimitField.setText(Integer.toString(capacity));
             capacityLabel.setText(participants.size() + " / " + capacity + " teams registered");
             participantsTable.getItems().setAll(participants);
-            matchesTable.getItems().setAll(currentMatches);
             boolean bracket = currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()));
             registrationOpen.set(data.registrationOpen());
             addTeams.setText(!data.registrationOpen() ? "Registration settings" : participants.size() >= capacity ? "Team limit reached" : "＋  Add teams");

@@ -26,9 +26,20 @@
             <Tab fx:id="matchesTab" text="Matches">
                 <VBox spacing="14" styleClass="tournament-tab">
                     <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Matches and map results" styleClass="panel-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="editOutcome" text="Outcome / reset" onAction="#editOutcome" styleClass="secondary"/><Button fx:id="editSchedule" text="Schedule" onAction="#editSchedule" styleClass="secondary"/><Button fx:id="editMatchFormat" text="Format" onAction="#editMatchFormat" styleClass="secondary"/><Button fx:id="addMatch" text="＋  Add match" onAction="#showMatchCreator" styleClass="secondary"/><Button fx:id="editScores" text="Enter / edit scores" onAction="#editSelectedScores" styleClass="primary"/></HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Status" styleClass="muted"/>
+                        <ComboBox fx:id="matchStatusFilter" value="All statuses" prefWidth="150" styleClass="compact-combo" accessibleText="Filter matches by status">
+                            <items><FXCollections fx:factory="observableArrayList">
+                                <String fx:value="All statuses"/>
+                                <String fx:value="Live"/>
+                                <String fx:value="Upcoming"/>
+                                <String fx:value="Completed"/>
+                            </FXCollections></items>
+                        </ComboBox>
+                    </HBox>
                     <TableView fx:id="matchesTable" VBox.vgrow="ALWAYS">
                         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
-                        <placeholder><Label text="No matches yet. Generate a bracket or add a match manually."/></placeholder>
+                        <placeholder><Label fx:id="matchesPlaceholder" text="No matches yet. Generate a bracket or add a match manually."/></placeholder>
                         <columns><TableColumn fx:id="matchOpponents" text="MATCH" minWidth="260"/><TableColumn fx:id="matchSeriesFormat" text="FORMAT" minWidth="72"/><TableColumn fx:id="matchScore" text="MAPS" minWidth="80"/><TableColumn fx:id="matchStatus" text="STATUS" minWidth="110"/><TableColumn fx:id="matchRound" text="ROUND" minWidth="110"/><TableColumn fx:id="matchStart" text="START" minWidth="130"/></columns>
                     </TableView>
                     <Label text="Series scores count completed map wins. Round scores (for example 13–10) are entered separately for each map." styleClass="muted" wrapText="true"/>
