@@ -9,9 +9,8 @@ Keep routine data entry minimal. Detailed player statistics, historical lineups,
 rankings, vetoes, and public publishing are optional future ideas, not requirements
 for a complete app. Existing later milestones below are a deferred idea backlog.
 
-Milestone 2 implementation is complete; apply migration 005 manually before using
-it. Automated checks use JDBC doubles and offscreen JavaFX; live PostgreSQL has
-not been validated or modified.
+Milestone 2 implementation is complete. Apply migration 005 manually before using
+it. The current test suite contains 10 JUnit tests for Java logic.
 
 ## Current completeness
 
@@ -71,9 +70,8 @@ without opening a SQL client. Changes made in another window cannot be silently
 overwritten. Existing completed results remain intact.
 
 Delivered: FXML organizer editor, conditional updates for stale-edit protection,
-atomic team/role changes, tournament-serialized seed/schedule edits, 22 new
-automated regression tests, and a reusable offscreen UI smoke check in
-`src/test/manual/OrganizerUiSmoke.java`. Detailed usage and restrictions are in
+atomic team/role changes, and tournament-serialized seed and schedule edits.
+Detailed usage and restrictions are in
 [tournament workflows](tournaments.md#organizer-editing).
 
 Database impact: basic edits reuse existing columns. Add roster history in

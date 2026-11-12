@@ -15,7 +15,8 @@ public class DatabaseManager {
     public static Connection getConnection() throws SQLException {
         try {
             // Environment variables also work when no local .env file is present.
-            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+            String configDirectory = System.getProperty("tournamentcreator.configDir", ".");
+            Dotenv dotenv = Dotenv.configure().directory(configDirectory).ignoreIfMissing().load();
             return openConnection(dotenv::get);
         } catch (io.github.cdimascio.dotenv.DotenvException error) {
             throw new SQLException("Could not read database configuration. Check the .env file.", "08001", error);

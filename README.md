@@ -60,15 +60,28 @@ Apply `db/migrations/006_unique_world_ranking.sql` to enforce unique team rankin
 .\mvnw.cmd javafx:run
 ```
 
-On Linux/macOS use `./mvnw` instead. The current tests use pure Java logic and JDBC
-test doubles; they do not require or write to a live database. They do not validate
-the actual PostgreSQL schema, SQL execution or concurrent database sessions.
+On Linux/macOS use `./mvnw` instead. The project includes 10 JUnit tests covering
+input validation, match scoring and bracket generation. They run without PostgreSQL.
+
+## Windows executable
+
+Run this from PowerShell on Windows with `JAVA_HOME` set to JDK 22 or newer:
+
+```powershell
+.\build-windows.ps1
+```
+
+The script runs the tests, builds the app and creates
+`target/windows/TournamentCreator/TournamentCreator.exe`. To run it on another
+Windows PC, copy the entire `TournamentCreator` folder. It includes the Java runtime.
+Configure PostgreSQL using the environment variables above or place a `.env` file
+next to the executable. The build does not package your repository's `.env` file.
 
 ## Project layout
 
 - `src/main/java`: controllers, models, JDBC DAOs and competition algorithms.
 - `src/main/resources`: FXML views, CSS and assets.
-- `src/test/java`: validation, competition logic and persistence tests.
+- `src/test/java`: 10 JUnit tests for validation and competition logic.
 - `db/migrations`: incremental PostgreSQL migrations.
 - [Tournament workflows](docs/tournaments.md): registration, groups, brackets and scoring.
 - [Product roadmap](docs/roadmap.md): current completeness, priorities, and proposed database work.
