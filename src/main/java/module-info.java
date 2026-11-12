@@ -7,6 +7,7 @@ module com.example.tournamentcreator {
     requires org.kordamp.bootstrapfx.core;
     requires io.github.cdimascio.dotenv.java;
     requires java.sql;
+    requires org.postgresql.jdbc;
 
     opens com.hltv.tournamentcreator to javafx.fxml;
     exports com.hltv.tournamentcreator;

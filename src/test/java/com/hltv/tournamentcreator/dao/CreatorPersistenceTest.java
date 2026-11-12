@@ -2,6 +2,8 @@ package com.hltv.tournamentcreator.dao;
 
 import com.hltv.tournamentcreator.models.Tournament;
 import org.junit.jupiter.api.Test;
+import org.postgresql.util.PSQLException;
+import org.postgresql.util.ServerErrorMessage;
 import java.lang.reflect.Proxy;
 import java.sql.*;
 import java.math.BigDecimal;
@@ -9,6 +11,17 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CreatorPersistenceTest {
+    @Test void onlyRankingConstraintViolationsGetTheRankingMessage() {
+        var duplicateRanking = new PSQLException(new ServerErrorMessage("SERROR\0C23505\0Mduplicate key\0nteams_world_ranking_unique\0\0"));
+        var duplicateTeamId = new PSQLException(new ServerErrorMessage("SERROR\0C23505\0Mduplicate key\0nteams_pkey\0\0"));
+
+        var message = TeamDAO.rankingConflict(duplicateRanking, 3);
+        assertEquals("P0001", message.getSQLState());
+        assertEquals("World ranking #3 is already assigned to another team.", message.getMessage());
+        assertSame(duplicateRanking, message.getCause());
+        assertSame(duplicateTeamId, TeamDAO.rankingConflict(duplicateTeamId, 3));
+    }
+
     @Test void teamAndRosterCommitTogetherWithGeneratedId() throws Exception {
         JdbcStub jdbc = new JdbcStub();
         UUID player = UUID.randomUUID();

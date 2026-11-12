@@ -63,6 +63,7 @@ public abstract class CreatorController {
             String message = "Could not save. Check the database connection and try again.";
             if (error instanceof java.sql.SQLException sql) {
                 if ("23503".equals(sql.getSQLState())) message = "A selection no longer exists. Reopen the creator to refresh choices.";
+                if ("P0001".equals(sql.getSQLState())) message = sql.getMessage();
                 if (sql.getMessage() != null && sql.getMessage().startsWith("A selected player")) message = sql.getMessage();
             }
             status.setText(message);

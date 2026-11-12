@@ -34,6 +34,8 @@ public class OrganizerDAO {
         try (var c = connections.open()) {
             update(c, "UPDATE winit.teams SET name=?, world_ranking=? WHERE team_id=? AND name IS NOT DISTINCT FROM ? AND world_ranking IS NOT DISTINCT FROM ?",
                 name, ranking, old.teamId(), old.name(), old.worldRanking());
+        } catch (SQLException error) {
+            throw TeamDAO.rankingConflict(error, ranking);
         }
     }
 

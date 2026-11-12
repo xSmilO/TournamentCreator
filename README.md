@@ -51,6 +51,8 @@ tables. The app does not automatically execute migrations.
 
 Apply `db/migrations/005_tournament_lifecycle.sql` after 004 to enable event states, outcomes, and audit history.
 
+Apply `db/migrations/006_unique_world_ranking.sql` to enforce unique team rankings. If the script lists existing duplicates, resolve those rankings and rerun it. Multiple teams can leave their ranking blank.
+
 ## Run and test
 
 ```powershell

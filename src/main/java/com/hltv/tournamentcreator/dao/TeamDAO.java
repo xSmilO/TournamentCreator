@@ -4,6 +4,7 @@ import com.hltv.tournamentcreator.models.Team;
 import com.hltv.tournamentcreator.models.Player;
 import com.hltv.tournamentcreator.models.RosterPlayer;
 import com.hltv.tournamentcreator.utils.CreatorValidation;
+import org.postgresql.util.PSQLException;
 
 import java.sql.*;
 import java.math.BigDecimal;
@@ -136,7 +137,11 @@ public class TeamDAO {
                     stmt.setObject(1, team.teamId());
                     stmt.setString(2, team.name());
                     stmt.setObject(3, team.worldRanking(), Types.INTEGER);
-                    stmt.executeUpdate();
+                    try {
+                        stmt.executeUpdate();
+                    } catch (SQLException error) {
+                        throw rankingConflict(error, worldRanking);
+                    }
                 }
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "UPDATE winit.players SET team_id = ? WHERE player_id = ? AND team_id IS NULL")) {
@@ -155,6 +160,15 @@ public class TeamDAO {
                 throw e;
             }
         }
+    }
+
+    static SQLException rankingConflict(SQLException error, Integer ranking) {
+        if (error instanceof PSQLException postgres && "23505".equals(error.getSQLState())
+                && postgres.getServerErrorMessage() != null
+                && "teams_world_ranking_unique".equals(postgres.getServerErrorMessage().getConstraint())) {
+            return new SQLException("World ranking #" + ranking + " is already assigned to another team.", "P0001", error);
+        }
+        return error;
     }
 
     // Helper method to keep mapping logic in one place
