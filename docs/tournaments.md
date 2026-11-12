@@ -78,7 +78,7 @@ Standings use **3 points per match win**, **0 per loss**, and completed matches 
 3. Overall maps won.
 4. Original tournament seed, with team ID as a final stable fallback if seeds are equal/missing.
 
-`Q` marks the current top two. Before all group matches finish, those positions are provisional. Incomplete, duplicate, or inconsistent group results cannot be used to generate playoffs. Groups and playoff generation are transactional and cannot be repeated over existing competition matches.
+Green rows mark the current top two. Before all group matches finish, those positions are provisional. Incomplete, duplicate, or inconsistent group results cannot be used to generate playoffs. Groups and playoff generation are transactional and cannot be repeated over existing competition matches.
 
 ## Enter map scores
 

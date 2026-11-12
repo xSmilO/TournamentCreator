@@ -9,6 +9,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -24,6 +25,7 @@ import java.util.function.Function;
 
 /** Owns the tournament-management flow; all layouts are FXML views. */
 public final class TournamentManagerController {
+    private static final PseudoClass ADVANCEMENT_SPOT = PseudoClass.getPseudoClass("advancement-spot");
     private final Tournament tournament;
     private final TournamentDAO tournaments;
     private final MatchDAO matches;
@@ -203,14 +205,22 @@ public final class TournamentManagerController {
                 try { table=GroupStage.standings(group,currentMatches); }
                 catch (IllegalArgumentException invalid) { view.<Label>get("notice").setText(invalid.getMessage()); return; }
                 TableView<GroupStanding> standings = view.get("standings");
-                bind(view.get("position"), (GroupStanding row) -> Integer.toString(table.indexOf(row)+1)+(table.indexOf(row)<2 ? "  Q" : ""));
+                bind(view.get("position"), (GroupStanding row) -> Integer.toString(table.indexOf(row) + 1));
+                standings.setRowFactory(ignored -> new TableRow<>() {
+                    @Override protected void updateItem(GroupStanding standing, boolean empty) {
+                        super.updateItem(standing, empty);
+                        int position = empty ? -1 : table.indexOf(standing);
+                        pseudoClassStateChanged(ADVANCEMENT_SPOT, position >= 0 && position < 2);
+                    }
+                });
                 bind(view.get("team"), GroupStanding::name); bind(view.get("played"), (GroupStanding row) -> Integer.toString(row.played()));
                 bind(view.get("wins"), (GroupStanding row) -> Integer.toString(row.wins())); bind(view.get("losses"), (GroupStanding row) -> Integer.toString(row.losses()));
                 bind(view.get("maps"), (GroupStanding row) -> row.mapsWon()+" : "+row.mapsLost());
                 bind(view.get("difference"), (GroupStanding row) -> (row.mapDifference()>0 ? "+" : "")+row.mapDifference());
                 bind(view.get("points"), (GroupStanding row) -> Integer.toString(row.points()));
                 standings.getItems().setAll(table);
-                view.<Label>get("notice").setText(playoffs ? "Q = qualified. Group results are locked." : "Q marks the current top two; qualification is provisional until all group matches finish.");
+                view.<Label>get("notice").setText(playoffs ? "Highlighted teams qualified for the playoffs."
+                    : "Highlighted teams are in the top two. Standings can change until group play ends.");
                 VBox fixtures = view.get("fixtures");
                 for (var match:currentMatches.stream().filter(m -> group.groupId().equals(m.groupId())).toList()) {
                     var matchView = FxmlViews.load("components/GroupMatchRow.fxml");

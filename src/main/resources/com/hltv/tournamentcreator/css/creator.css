@@ -176,5 +176,13 @@
 .group-panel > .content { -fx-background-color: #11151c; -fx-border-color: #2a303a; }
 .group-panel-content { -fx-padding: 12; }
 .group-panel .table-row-cell { -fx-cell-size: 42; }
+.group-panel .table-row-cell:filled:advancement-spot {
+    -fx-background-color: #58b88a, #183128;
+    -fx-background-insets: 0, 0 0 0 3;
+    -fx-border-color: #315044;
+}
+.group-panel .table-row-cell:filled:advancement-spot:hover { -fx-background-color: #58b88a, #204234; }
+.group-panel .table-row-cell:filled:advancement-spot:selected { -fx-background-color: #58b88a, #285342; }
+.group-panel .table-row-cell:filled:advancement-spot .table-cell { -fx-text-fill: #d4e9de; }
 .group-match { -fx-background-color: #151a22; -fx-border-color: #242a34; -fx-padding: 12; -fx-alignment: center-left; }
 .group-match:hover { -fx-border-color: #ff8a24; }
