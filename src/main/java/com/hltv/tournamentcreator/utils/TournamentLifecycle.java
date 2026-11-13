@@ -7,6 +7,7 @@ public final class TournamentLifecycle {
     private TournamentLifecycle() {}
     public record State(String state, boolean archived) {
         public boolean terminal() { return "Completed".equals(state) || "Cancelled".equals(state); }
+        public boolean canChangeTeamLimit() { return !archived && ("Draft".equals(state) || "Registration".equals(state)); }
         public boolean editable() { return !archived && state!=null && Set.of("Draft","Registration","In progress").contains(state); }
     }
     public static void requireEditable(State state) {

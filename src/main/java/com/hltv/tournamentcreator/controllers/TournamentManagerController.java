@@ -42,7 +42,8 @@ public final class TournamentManagerController {
     private final List<ScoreRow> scoreRows = new ArrayList<>();
     private record ScoreRow(UUID id, int order, FxmlViews.Fragment view) {}
     private record ScoreData(List<MapResult> maps, List<String> names) {}
-    private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, int limit, List<TournamentGroup> groups, boolean registrationOpen) {}
+    private record Snapshot(List<TournamentParticipant> teams, List<TournamentMatch> matches, TournamentDAO.TeamCapacity teamCapacity,
+                            List<TournamentGroup> groups, boolean registrationOpen) {}
     private final javafx.beans.property.BooleanProperty registrationOpen = new javafx.beans.property.SimpleBooleanProperty(false);
     @FXML private Button removeTeam, editSeed, editSchedule, editOutcome, editMatchFormat;
 
@@ -52,6 +53,8 @@ public final class TournamentManagerController {
     @FXML private TableColumn<TournamentParticipant,String> participantSeed, participantName;
     @FXML private TableView<TournamentMatch> matchesTable;
     @FXML private ComboBox<String> matchStatusFilter;
+    @FXML private HBox teamLimitEditor;
+    @FXML private Label teamLimitValue;
     @FXML private Label matchesPlaceholder;
     @FXML private TableColumn<TournamentMatch,String> matchOpponents, matchScore, matchStatus, matchRound, matchStart, matchSeriesFormat;
     @FXML private TableView<Team> eligibleTable;
@@ -146,15 +149,22 @@ public final class TournamentManagerController {
 
     @FXML private void refresh() {
         registrationOpen.set(false);
-        refresh.setDisable(true); addTeams.setDisable(true); addMatch.setDisable(true); generate.setDisable(true); saveLimit.setDisable(true);
+        refresh.setDisable(true); addTeams.setDisable(true); addMatch.setDisable(true); generate.setDisable(true); teamLimitEditor.setDisable(true);
         drawGroups.setDisable(true); qualifyGroups.setDisable(true);
         managerStatus.setText("Loading tournament…");
         BackgroundTask.run(() -> new Snapshot(tournaments.getRegisteredTeams(tournament.tournamentId()), matches.getMatches(tournament.tournamentId()),
-                tournaments.getTeamLimit(tournament.tournamentId()), groups.getGroups(tournament.tournamentId()), tournaments.isRegistrationOpen(tournament.tournamentId())), data -> {
+                tournaments.getTeamCapacity(tournament.tournamentId()), groups.getGroups(tournament.tournamentId()), tournaments.isRegistrationOpen(tournament.tournamentId())), data -> {
             participants = data.teams(); currentMatches.setAll(data.matches());
             currentGroups = data.groups();
-            capacity = data.limit();
+            capacity = data.teamCapacity().limit();
             teamLimitField.setText(Integer.toString(capacity));
+            teamLimitValue.setText(Integer.toString(capacity));
+            boolean editable = data.teamCapacity().editable();
+            teamLimitEditor.setVisible(editable);
+            teamLimitEditor.setManaged(editable);
+            teamLimitValue.setVisible(!editable);
+            teamLimitValue.setManaged(!editable);
+            teamLimitEditor.setDisable(!editable);
             capacityLabel.setText(participants.size() + " / " + capacity + " teams registered");
             participantsTable.getItems().setAll(participants);
             boolean bracket = currentMatches.stream().anyMatch(m -> SingleElimination.STAGE.equals(m.stage()));

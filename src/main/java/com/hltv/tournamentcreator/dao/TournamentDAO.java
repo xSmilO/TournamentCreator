@@ -4,6 +4,7 @@ import com.hltv.tournamentcreator.models.Tournament;
 import com.hltv.tournamentcreator.models.Team;
 import com.hltv.tournamentcreator.models.TournamentParticipant;
 import com.hltv.tournamentcreator.utils.CreatorValidation;
+import com.hltv.tournamentcreator.utils.TournamentLifecycle;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -190,12 +191,17 @@ public class TournamentDAO {
         }
     }
 
-    public int getTeamLimit(UUID tournamentId) throws SQLException {
-        try (Connection conn = connections.open(); PreparedStatement stmt = conn.prepareStatement("SELECT team_limit FROM winit.tournaments WHERE tournament_id=?")) {
+    public record TeamCapacity(int limit, boolean editable) {}
+
+    public TeamCapacity getTeamCapacity(UUID tournamentId) throws SQLException {
+        try (Connection conn = connections.open(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT team_limit, lifecycle_state, archived FROM winit.tournaments WHERE tournament_id=?")) {
             stmt.setObject(1, tournamentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) throw new SQLException("This tournament no longer exists.", "P0001");
-                return rs.getInt("team_limit");
+                var state = new TournamentLifecycle.State(
+                        rs.getString("lifecycle_state"), rs.getBoolean("archived"));
+                return new TeamCapacity(rs.getInt("team_limit"), state.canChangeTeamLimit());
             }
         }
     }
@@ -262,7 +268,9 @@ public class TournamentDAO {
         try (Connection conn = connections.open()) {
             conn.setAutoCommit(false);
             try {
-                MatchDAO.lockTournament(conn, tournamentId);
+                if (!LifecycleDAO.state(conn, tournamentId, true).canChangeTeamLimit()) {
+                    throw LifecycleDAO.rule("The team limit can only be changed before the tournament starts.");
+                }
                 try (PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) AS participant_count FROM winit.tournament_participants WHERE tournament_id=?")) {
                     stmt.setObject(1, tournamentId);
                     try (ResultSet rs = stmt.executeQuery()) {
