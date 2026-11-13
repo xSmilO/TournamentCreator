@@ -171,7 +171,6 @@ public class TeamDAO {
         return error;
     }
 
-    // Helper method to keep mapping logic in one place
     private Team mapRowToTeam(ResultSet rs) throws SQLException {
         return new Team(
                 rs.getObject("team_id", UUID.class),

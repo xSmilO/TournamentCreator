@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS winit.maps (
 INSERT INTO winit.maps (name)
 VALUES ('Mirage'), ('Inferno'), ('Nuke'), ('Ancient'), ('Anubis'), ('Dust2'), ('Vertigo'), ('Overpass'), ('Train')
 ON CONFLICT (name) DO NOTHING;
--- Preserve names already used in saved results.
 INSERT INTO winit.maps (name)
 SELECT DISTINCT map_name FROM winit.games WHERE map_name IS NOT NULL AND btrim(map_name) <> ''
 ON CONFLICT (name) DO NOTHING;

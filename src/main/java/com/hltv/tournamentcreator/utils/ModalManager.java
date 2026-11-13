@@ -11,7 +11,6 @@ public class ModalManager {
     private final Pane modalOverlay;
     private Runnable onSaved;
 
-    // Private constructor for Singleton pattern
     private ModalManager(Pane modalOverlay) {
         this.modalOverlay = modalOverlay;
     }

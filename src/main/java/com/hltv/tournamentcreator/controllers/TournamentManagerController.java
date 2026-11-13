@@ -24,7 +24,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.function.Function;
 
-/** Owns the tournament-management flow; all layouts are FXML views. */
 public final class TournamentManagerController {
     private static final PseudoClass ADVANCEMENT_SPOT = PseudoClass.getPseudoClass("advancement-spot");
     private final Tournament tournament;

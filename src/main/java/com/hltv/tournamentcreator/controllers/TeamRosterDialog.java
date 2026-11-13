@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.function.Function;
 
-/** Coordinates the three FXML views for roster, player selection, and role confirmation. */
 public final class TeamRosterDialog {
     private final Team team;
     private final TeamDAO dao;

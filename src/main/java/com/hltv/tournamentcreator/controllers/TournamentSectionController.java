@@ -48,7 +48,7 @@ public class TournamentSectionController extends DatabaseSectionController<Tourn
                 () -> ModalManager.getInstance().hideModal()).tournament(t));
         return view.root();
     }
-    @Override protected void configureColumns() { /* Tournament results use the FXML card template. */ }
+    @Override protected void configureColumns() {}
     @Override protected void openCreator() {
         ModalManager.getInstance().showModal("/com/hltv/tournamentcreator/TournamentCreatorModal.fxml", this::loadData);
     }

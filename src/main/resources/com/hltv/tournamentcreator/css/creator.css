@@ -33,7 +33,6 @@
 #creator-form .check-box { -fx-text-fill: #aab0ba; -fx-padding: 5 0; }
 #creator-form .check-box .box { -fx-background-color: #0d1116; -fx-border-color: #38404c; -fx-border-radius: 3; }
 #creator-form .check-box:selected .mark { -fx-background-color: #ff8a24; }
-/* Date fields and the separate calendar popup share the WinIt palette. */
 #creator-form .date-picker {
     -fx-background-color: #0d1116;
     -fx-background-radius: 6;
@@ -121,7 +120,6 @@
 #role-prompt .combo-box { -fx-min-height: 40; }
 #role-prompt .combo-box .text-field { -fx-border-width: 0; }
 
-/* FXML view sizing and shared form spacing. */
 .creator-dialog { -fx-spacing: 14; -fx-pref-width: 560; -fx-max-width: 560; -fx-max-height: 660; }
 .form-field { -fx-spacing: 5; }
 .organizer-team, .organizer-seed { -fx-max-height: 380; }
@@ -148,7 +146,6 @@
 .roster-dialog { -fx-spacing: 18; -fx-max-width: 850; -fx-max-height: 640; -fx-min-height: 0; }
 .role-dialog { -fx-spacing: 18; -fx-max-width: 560; -fx-max-height: 340; -fx-min-height: 0; }
 
-/* Tournament management, map results, and the dynamically populated bracket. */
 .tournament-manager { -fx-spacing: 18; -fx-max-width: 1040; -fx-max-height: 700; -fx-min-height: 0; }
 .score-dialog { -fx-spacing: 14; -fx-max-width: 850; -fx-max-height: 660; -fx-min-height: 0; }
 .tournament-tab { -fx-padding: 18 0 0 0; }

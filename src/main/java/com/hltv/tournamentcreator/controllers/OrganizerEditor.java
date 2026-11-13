@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 
-/** Shared FXML form for small organizer edits; each mode exposes only its own fields. */
 public final class OrganizerEditor {
     private enum Mode { PLAYER, TEAM, TOURNAMENT, TRANSFER, RELEASE, SEED, SCHEDULE, MATCH_FORMAT }
     private final OrganizerDAO dao;
@@ -119,7 +118,6 @@ public final class OrganizerEditor {
         BackgroundTask.run(work, ignored -> {
             root.setDisable(false); finished = true; save.setDisable(true); cancel.setText("Done");
             status.setText("Saved successfully.");
-            // Keep the confirmation visible; Done returns to the refreshed originating view.
         }, error -> {
             root.setDisable(false);
             status.setText(error instanceof IllegalArgumentException ? error.getMessage()

@@ -38,14 +38,12 @@ public class PlayerDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                // 1. Build the Country object
                 Country country = rs.getObject("country_id") == null ? null : new Country(
                         rs.getInt("country_id"),
                         rs.getString("c_name"),
                         rs.getString("c_code")
                 );
 
-                // 2. Build the Team object (check if null first)
                 Team team = null;
                 if (rs.getString("t_name") != null) {
                     team = new Team(
@@ -55,7 +53,6 @@ public class PlayerDAO {
                     );
                 }
 
-                // 3. Build the Player with the composed objects
                 Player player = new Player(
                         rs.getObject("player_id", UUID.class),
                         rs.getString("nickname"),
@@ -82,7 +79,6 @@ public class PlayerDAO {
                     RETURNING *
                 """;
 
-        // 1. Open the Connection AND the PreparedStatement together
         try (Connection conn = connections.open();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -90,9 +86,8 @@ public class PlayerDAO {
             stmt.setString(2, firstName);
             stmt.setString(3, lastName);
             stmt.setInt(4, country.countryId());
-            stmt.setObject(5, dateOfBirth); // Safely handles null UUIDs
+            stmt.setObject(5, dateOfBirth);
 
-            // 2. Execute and process the ResultSet
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Player(
@@ -100,9 +95,9 @@ public class PlayerDAO {
                             nickname,
                             firstName,
                             lastName,
-                            country,      // We already have the full Country object from the method arguments!
+                            country,
                             dateOfBirth,
-                            null,         // Team is intentionally set to null (Free Agent)
+                            null,
                             numeric(rs, "headshot_percentage"),
                             numeric(rs, "hltv_rating"),
                             rs.getObject("created_at", java.time.LocalDateTime.class)

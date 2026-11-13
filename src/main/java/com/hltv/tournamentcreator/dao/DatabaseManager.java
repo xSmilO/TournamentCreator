@@ -14,7 +14,6 @@ public class DatabaseManager {
 
     public static Connection getConnection() throws SQLException {
         try {
-            // Environment variables also work when no local .env file is present.
             String configDirectory = System.getProperty("tournamentcreator.configDir", ".");
             Dotenv dotenv = Dotenv.configure().directory(configDirectory).ignoreIfMissing().load();
             return openConnection(dotenv::get);

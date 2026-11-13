@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
-/** Loads full views and small, reusable FXML templates. */
 public final class FxmlViews {
     private FxmlViews() {}
 
