@@ -11,6 +11,15 @@ public final class BackgroundTask {
     @FunctionalInterface
     public interface Work<T> { T run() throws Exception; }
 
+    public static <T> void run(javafx.scene.Node content, Work<T> work, Consumer<T> success, Consumer<Throwable> failure) {
+        Runnable hide = LoadingOverlay.show(content);
+        run(work, value -> {
+            try { success.accept(value); } finally { hide.run(); }
+        }, error -> {
+            try { failure.accept(error); } finally { hide.run(); }
+        });
+    }
+
     public static <T> void run(Work<T> work, Consumer<T> success, Consumer<Throwable> failure) {
         CompletableFuture.supplyAsync(() -> {
             try { return work.run(); }

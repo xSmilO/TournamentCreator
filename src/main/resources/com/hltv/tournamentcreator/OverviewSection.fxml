@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <VBox styleClass="overview" stylesheets="@css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.hltv.tournamentcreator.controllers.OverviewController">
-    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+    <ScrollPane fx:id="loadingContent" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
         <VBox spacing="24" styleClass="dashboard-body">
             <HBox spacing="16" alignment="CENTER_LEFT">
                 <VBox spacing="7" HBox.hgrow="ALWAYS">

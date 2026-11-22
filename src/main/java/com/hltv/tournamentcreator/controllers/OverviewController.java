@@ -17,6 +17,7 @@ import java.util.Locale;
 public class OverviewController {
     @FXML private Label tournamentTotal, teamTotal, playerTotal, matchTotal, date, status, scheduleEmpty, rankingEmpty;
     @FXML private VBox schedule, ranking;
+    @FXML private ScrollPane loadingContent;
     @FXML private Button refresh;
     @FXML private StackPane tournamentIcon, teamIcon, playerIcon, matchIcon;
 
@@ -31,7 +32,7 @@ public class OverviewController {
     protected DashboardDAO.Snapshot fetchData() throws Exception { return new DashboardDAO().load(); }
     @FXML private void loadData() {
         refresh.setDisable(true);
-        BackgroundTask.run(this::fetchData, data -> {
+        BackgroundTask.run(loadingContent, this::fetchData, data -> {
             tournamentTotal.setText(count(data.tournaments())); teamTotal.setText(count(data.teams()));
             playerTotal.setText(count(data.players())); matchTotal.setText(count(data.played()));
             schedule.getChildren().setAll(data.matches().stream().map(this::matchRow).toList());

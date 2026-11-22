@@ -40,7 +40,7 @@ public final class EventControl {
     @FXML private void refresh(){load(null);}
     private void load(String message) {
         root.setDisable(true);status.setText("Loading event control…");
-        BackgroundTask.run(() -> dao.overview(tournament), data -> {
+        BackgroundTask.run(root, () -> dao.overview(tournament), data -> {
             current=data.state();stateLabel.setText(current.state()+(current.archived()?" · Archived":""));
             standings.getItems().setAll(data.placements());history.getItems().setAll(data.audit());details.clear();
             List<String> actions=current.archived()?List.of("Unarchive") : switch(current.state()) {

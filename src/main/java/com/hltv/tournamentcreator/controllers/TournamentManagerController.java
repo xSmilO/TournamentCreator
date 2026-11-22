@@ -151,7 +151,7 @@ public final class TournamentManagerController {
         refresh.setDisable(true); addTeams.setDisable(true); addMatch.setDisable(true); generate.setDisable(true); teamLimitEditor.setDisable(true);
         drawGroups.setDisable(true); qualifyGroups.setDisable(true);
         managerStatus.setText("Loading tournament…");
-        BackgroundTask.run(() -> new Snapshot(tournaments.getRegisteredTeams(tournament.tournamentId()), matches.getMatches(tournament.tournamentId()),
+        BackgroundTask.run(tabs, () -> new Snapshot(tournaments.getRegisteredTeams(tournament.tournamentId()), matches.getMatches(tournament.tournamentId()),
                 tournaments.getTeamCapacity(tournament.tournamentId()), groups.getGroups(tournament.tournamentId()), tournaments.isRegistrationOpen(tournament.tournamentId())), data -> {
             participants = data.teams(); currentMatches.setAll(data.matches());
             currentGroups = data.groups();
@@ -291,7 +291,7 @@ public final class TournamentManagerController {
 
     @FXML private void loadEligible() {
         teamPickerStatus.setText("Loading teams…");
-        BackgroundTask.run(() -> tournaments.getEligibleTeams(tournament.tournamentId()), teams -> {
+        BackgroundTask.run(eligibleTable, () -> tournaments.getEligibleTeams(tournament.tournamentId()), teams -> {
             var filtered = new FilteredList<>(FXCollections.observableArrayList(teams));
             var sorted = new SortedList<>(filtered);
             sorted.comparatorProperty().bind(eligibleTable.comparatorProperty());
@@ -394,7 +394,7 @@ public final class TournamentManagerController {
         scoreRoot.setDisable(true);
         scoreStatus.setText("Loading saved map scores…");
         ModalManager.getInstance().showModal(view.root());
-        BackgroundTask.run(() -> new ScoreData(matches.getMaps(match.matchId()), matches.getMapNames()), data -> {
+        BackgroundTask.run(scoreStatus.getParent(), () -> new ScoreData(matches.getMaps(match.matchId()), matches.getMapNames()), data -> {
             List<MapResult> maps = data.maps();
             originalMaps = maps;
             Set<Integer> orders = new HashSet<>();

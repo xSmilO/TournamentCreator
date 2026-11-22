@@ -50,7 +50,7 @@ public final class TeamRosterDialog {
         ModalManager.getInstance().showModal(view.root());
         TableView<RosterPlayer> currentTable = rosterTable;
         Label currentStatus = rosterStatus;
-        BackgroundTask.run(() -> dao.getRosterMembers(team.teamId()), players -> {
+        BackgroundTask.run(currentTable, () -> dao.getRosterMembers(team.teamId()), players -> {
             currentTable.getItems().setAll(players);
             currentStatus.setText(players.size() + " players · Roles belong to the current team");
         }, error -> currentStatus.setText(errorMessage(error)));
@@ -80,7 +80,7 @@ public final class TeamRosterDialog {
         pickerPlaceholder.setText("Loading players…");
         pickerRefresh.setDisable(true);
         pickerStatus.setText("Loading available players…");
-        BackgroundTask.run(dao::getAvailablePlayers, players -> {
+        BackgroundTask.run(playerTable, dao::getAvailablePlayers, players -> {
             available.setAll(players);
             pickerPlaceholder.setText("No available players match your search.");
             pickerStatus.setText(players.size() + " free agents · Click a player to choose their role");

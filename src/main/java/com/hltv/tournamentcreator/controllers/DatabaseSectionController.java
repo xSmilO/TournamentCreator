@@ -130,7 +130,7 @@ public abstract class DatabaseSectionController<T> {
     @FXML protected void loadData() {
         refresh.setDisable(true);
         status.setText("Loading " + sectionName().toLowerCase() + "…");
-        BackgroundTask.run(this::fetchRows, values -> {
+        BackgroundTask.run(status.getParent(), this::fetchRows, values -> {
             rows.setAll(values);
             loaded = true;
             applyFilter();
